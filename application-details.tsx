@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { ChevronDown, ChevronUp, Info, Edit, Save, X, AlertCircle, CheckCircle } from "lucide-react"
+import { ChevronDown, ChevronUp, Info, Edit, Save, X, CheckCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,9 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { HistoryModal } from "@/components/history/history-modal"
 import { HistoryDiagnostics } from "@/components/history/history-diagnostics"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { showSuccessToast, showErrorToast, showInfoToast } from "@/lib/toast-utils"
 import {
   applicationDetailsSchema,
   organizationAlignmentSchema,
@@ -35,16 +35,9 @@ export default function ApplicationDetailsPage() {
 
   const [isEditMode, setIsEditMode] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
 
-  const [validationStatus, setValidationStatus] = useState({
-    applicationDetails: true,
-    organizationAlignment: true,
-    supportAlignment: true,
-  })
-
-  // Form instances for each section
+  // Form instances for each section using Shadcn UI Form
   const applicationDetailsForm = useForm<ApplicationDetailsFormData>({
     resolver: zodResolver(applicationDetailsSchema),
     mode: "onBlur",
@@ -96,6 +89,12 @@ export default function ApplicationDetailsPage() {
   })
 
   // Monitor form validation states
+  const [validationStatus, setValidationStatus] = useState({
+    applicationDetails: true,
+    organizationAlignment: true,
+    supportAlignment: true,
+  })
+
   useEffect(() => {
     const updateValidationStatus = () => {
       setValidationStatus({
@@ -115,33 +114,17 @@ export default function ApplicationDetailsPage() {
     }))
   }
 
-  const getFieldClassName = (fieldError: any, isEditMode: boolean) => {
-    const baseClass = !isEditMode ? "bg-gray-50" : ""
-    const errorClass = fieldError ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
-    return `${baseClass} ${errorClass}`.trim()
-  }
-
   const handleEditToggle = () => {
     if (isEditMode) {
       applicationDetailsForm.reset()
       organizationForm.reset()
       supportForm.reset()
-      applicationDetailsForm.clearErrors()
-      organizationForm.clearErrors()
-      supportForm.clearErrors()
-      setValidationErrors([])
       setSaveStatus("idle")
 
-      toast.info("Edit mode cancelled", {
-        description: "All unsaved changes and validation errors have been cleared.",
-      })
+      showInfoToast("Edit mode cancelled", "All unsaved changes have been cleared.")
     } else {
-      setValidationErrors([])
       setSaveStatus("idle")
-
-      toast.info("Edit mode enabled", {
-        description: "Form validation will occur as you move between fields.",
-      })
+      showInfoToast("Edit mode enabled", "Form validation will occur as you move between fields.")
     }
     setIsEditMode(!isEditMode)
   }
@@ -161,15 +144,14 @@ export default function ApplicationDetailsPage() {
     try {
       await simulateApiCall(data, "application details")
 
-      toast.success("Application details updated successfully!", {
-        description: "All changes have been saved to the system.",
-      })
+      showSuccessToast("Application details updated successfully!", "All changes have been saved to the system.")
 
       console.log("Application Details:", data)
     } catch (error) {
-      toast.error("Failed to update application details", {
-        description: "Please try again or contact support if the problem persists.",
-      })
+      showErrorToast(
+        "Failed to update application details",
+        "Please try again or contact support if the problem persists.",
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -180,15 +162,14 @@ export default function ApplicationDetailsPage() {
     try {
       await simulateApiCall(data, "organization alignment")
 
-      toast.success("Organization alignment updated successfully!", {
-        description: "All organizational changes have been saved.",
-      })
+      showSuccessToast("Organization alignment updated successfully!", "All organizational changes have been saved.")
 
       console.log("Organization Alignment:", data)
     } catch (error) {
-      toast.error("Failed to update organization alignment", {
-        description: "Please try again or contact support if the problem persists.",
-      })
+      showErrorToast(
+        "Failed to update organization alignment",
+        "Please try again or contact support if the problem persists.",
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -199,15 +180,14 @@ export default function ApplicationDetailsPage() {
     try {
       await simulateApiCall(data, "support alignment")
 
-      toast.success("Support alignment updated successfully!", {
-        description: "All support configuration changes have been saved.",
-      })
+      showSuccessToast("Support alignment updated successfully!", "All support configuration changes have been saved.")
 
       console.log("Support Alignment:", data)
     } catch (error) {
-      toast.error("Failed to update support alignment", {
-        description: "Please try again or contact support if the problem persists.",
-      })
+      showErrorToast(
+        "Failed to update support alignment",
+        "Please try again or contact support if the problem persists.",
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -230,26 +210,21 @@ export default function ApplicationDetailsPage() {
 
         setIsEditMode(false)
         setSaveStatus("saved")
-        toast.success("All sections updated successfully!", {
-          description: "Your changes have been saved across all sections.",
-        })
+        showSuccessToast("All sections updated successfully!", "Your changes have been saved across all sections.")
 
         setTimeout(() => setSaveStatus("idle"), 3000)
       } catch (error) {
         setSaveStatus("error")
-        toast.error("Failed to save all changes", {
-          description: "Some sections may not have been saved. Please try again.",
-        })
+        showErrorToast("Failed to save all changes", "Some sections may not have been saved. Please try again.")
       } finally {
         setIsSubmitting(false)
       }
     } else {
-      toast.error("Please fix validation errors", {
-        description: "Check all sections for required fields and correct any errors.",
-      })
+      showErrorToast("Please fix validation errors", "Check all sections for required fields and correct any errors.")
     }
   }
 
+  // Tooltip component
   const InfoTooltip = ({ content }: { content: string }) => (
     <TooltipProvider>
       <Tooltip>
@@ -384,23 +359,6 @@ export default function ApplicationDetailsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
-        {/* Validation Errors Summary */}
-        {validationErrors.length > 0 && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              <div className="font-medium mb-2">Please fix the following validation errors:</div>
-              <ul className="list-disc list-inside space-y-1">
-                {validationErrors.map((error, index) => (
-                  <li key={index} className="text-sm">
-                    {error}
-                  </li>
-                ))}
-              </ul>
-            </AlertDescription>
-          </Alert>
-        )}
-
         {/* Application Details Section */}
         <Card>
           <CardHeader className="cursor-pointer" onClick={() => toggleSection("applicationDetails")}>
@@ -411,193 +369,232 @@ export default function ApplicationDetailsPage() {
           </CardHeader>
           {expandedSections.applicationDetails && (
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="shortName" className="flex items-center gap-2">
-                    Short Name
-                    <InfoTooltip content="Abbreviated name for the application" />
-                  </Label>
-                  <Input
-                    id="shortName"
-                    value={applicationDetailsForm.getValues("shortName")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.shortName, isEditMode)}
-                    {...applicationDetailsForm.register("shortName")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="region" className="flex items-center gap-2">
-                    Region
-                    <InfoTooltip content="Geographic region where the application operates" />
-                  </Label>
-                  <Input
-                    id="region"
-                    value={applicationDetailsForm.getValues("region")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.region, isEditMode)}
-                    {...applicationDetailsForm.register("region")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="twoDot" className="flex items-center gap-2">
-                    Two Dot
-                    <InfoTooltip content="Two-level application categorization" />
-                  </Label>
-                  <Input
-                    id="twoDot"
-                    value={applicationDetailsForm.getValues("twoDot")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.twoDot, isEditMode)}
-                    {...applicationDetailsForm.register("twoDot")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="twoDotDesc" className="flex items-center gap-2">
-                    Two Dot Desc
-                    <InfoTooltip content="Description of the two-dot categorization" />
-                  </Label>
-                  <Input
-                    id="twoDotDesc"
-                    value={applicationDetailsForm.getValues("twoDotDesc")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.twoDotDesc, isEditMode)}
-                    {...applicationDetailsForm.register("twoDotDesc")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="threeDot" className="flex items-center gap-2">
-                    Three Dot
-                    <InfoTooltip content="Three-level application categorization" />
-                  </Label>
-                  <Input
-                    id="threeDot"
-                    value={applicationDetailsForm.getValues("threeDot")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.threeDot, isEditMode)}
-                    {...applicationDetailsForm.register("threeDot")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="threeDotDesc" className="flex items-center gap-2">
-                    Three Dot Desc
-                    <InfoTooltip content="Description of the three-dot categorization" />
-                  </Label>
-                  <Input
-                    id="threeDotDesc"
-                    value={applicationDetailsForm.getValues("threeDotDesc")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.threeDotDesc, isEditMode)}
-                    {...applicationDetailsForm.register("threeDotDesc")}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description" className="flex items-center gap-2">
-                  Description
-                  <InfoTooltip content="Detailed description of the application functionality" />
-                </Label>
-                <Textarea
-                  id="description"
-                  value={applicationDetailsForm.getValues("description")}
-                  readOnly={!isEditMode}
-                  className={`${getFieldClassName(
-                    applicationDetailsForm.formState.errors.description,
-                    isEditMode,
-                  )} min-h-[100px]`}
-                  {...applicationDetailsForm.register("description")}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="rto" className="flex items-center gap-2">
-                    RTO
-                    <InfoTooltip content="Recovery Time Objective" />
-                  </Label>
-                  <Input
-                    id="rto"
-                    value={applicationDetailsForm.getValues("rto")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.rto, isEditMode)}
-                    {...applicationDetailsForm.register("rto")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="rpo" className="flex items-center gap-2">
-                    RPO
-                    <InfoTooltip content="Recovery Point Objective" />
-                  </Label>
-                  <Input
-                    id="rpo"
-                    value={applicationDetailsForm.getValues("rpo")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.rpo, isEditMode)}
-                    {...applicationDetailsForm.register("rpo")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="rtoApprover" className="flex items-center gap-2">
-                    RTO/RPO Approver
-                    <InfoTooltip content="Person who approved the RTO/RPO settings" />
-                  </Label>
-                  <Input
-                    id="rtoApprover"
-                    value={applicationDetailsForm.getValues("rtoApprover")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.rtoApprover, isEditMode)}
-                    {...applicationDetailsForm.register("rtoApprover")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="rtoApproveDate" className="flex items-center gap-2">
-                    RTO/RPO Approve Date
-                    <InfoTooltip content="Date when RTO/RPO was approved" />
-                  </Label>
-                  <Input
-                    id="rtoApproveDate"
-                    value={applicationDetailsForm.getValues("rtoApproveDate")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(applicationDetailsForm.formState.errors.rtoApproveDate, isEditMode)}
-                    {...applicationDetailsForm.register("rtoApproveDate")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="usesMainframe" className="flex items-center gap-2">
-                    Uses Mainframe
-                    <InfoTooltip content="Whether the application uses mainframe technology" />
-                  </Label>
-                  <Select
-                    value={applicationDetailsForm.getValues("usesMainframe")}
-                    disabled={!isEditMode}
-                    onValueChange={applicationDetailsForm.setValue.bind(null, "usesMainframe")}
-                  >
-                    <SelectTrigger
-                      className={getFieldClassName(applicationDetailsForm.formState.errors.usesMainframe, isEditMode)}
-                    >
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="applicationHosting" className="flex items-center gap-2">
-                    Application Hosting
-                    <InfoTooltip content="Where the application is hosted" />
-                  </Label>
-                  <Input
-                    id="applicationHosting"
-                    value={applicationDetailsForm.getValues("applicationHosting")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(
-                      applicationDetailsForm.formState.errors.applicationHosting,
-                      isEditMode,
+              <Form {...applicationDetailsForm}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="shortName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Short Name
+                          <InfoTooltip content="Abbreviated name for the application" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                    {...applicationDetailsForm.register("applicationHosting")}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="region"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Region
+                          <InfoTooltip content="Geographic region where the application operates" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="twoDot"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Two Dot
+                          <InfoTooltip content="Two-level application categorization" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="twoDotDesc"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Two Dot Desc
+                          <InfoTooltip content="Description of the two-dot categorization" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="threeDot"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Three Dot
+                          <InfoTooltip content="Three-level application categorization" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="threeDotDesc"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Three Dot Desc
+                          <InfoTooltip content="Description of the three-dot categorization" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-              </div>
+                <FormField
+                  control={applicationDetailsForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        Description
+                        <InfoTooltip content="Detailed description of the application functionality" />
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          readOnly={!isEditMode}
+                          className={`min-h-[100px] ${!isEditMode ? "bg-gray-50" : ""}`}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="rto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          RTO
+                          <InfoTooltip content="Recovery Time Objective" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="rpo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          RPO
+                          <InfoTooltip content="Recovery Point Objective" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="rtoApprover"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          RTO/RPO Approver
+                          <InfoTooltip content="Person who approved the RTO/RPO settings" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="rtoApproveDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          RTO/RPO Approve Date
+                          <InfoTooltip content="Date when RTO/RPO was approved" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="usesMainframe"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Uses Mainframe
+                          <InfoTooltip content="Whether the application uses mainframe technology" />
+                        </FormLabel>
+                        <Select disabled={!isEditMode} value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className={!isEditMode ? "bg-gray-50" : ""}>
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={applicationDetailsForm.control}
+                    name="applicationHosting"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Application Hosting
+                          <InfoTooltip content="Where the application is hosted" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </Form>
             </CardContent>
           )}
         </Card>
@@ -612,125 +609,154 @@ export default function ApplicationDetailsPage() {
           </CardHeader>
           {expandedSections.organizationAlignment && (
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="techExec" className="flex items-center gap-2">
-                    Tech Exec
-                    <InfoTooltip content="Technology Executive responsible for the application" />
-                  </Label>
-                  <Input
-                    id="techExec"
-                    value={organizationForm.getValues("techExec")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.techExec, isEditMode)}
-                    {...organizationForm.register("techExec")}
+              <Form {...organizationForm}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FormField
+                    control={organizationForm.control}
+                    name="techExec"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Tech Exec
+                          <InfoTooltip content="Technology Executive responsible for the application" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="managementContact"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Management Contact
+                          <InfoTooltip content="Primary management contact for the application" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="applicationManager"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Application Manager
+                          <InfoTooltip content="Manager responsible for application operations" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="portfolio"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Portfolio
+                          <InfoTooltip content="Portfolio this application belongs to" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="portfolioLead"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Portfolio Lead
+                          <InfoTooltip content="Lead person for the portfolio" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="team"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Team
+                          <InfoTooltip content="Team responsible for the application" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="organisation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Organisation
+                          <InfoTooltip content="Organization unit" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="lineOfBusiness"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Line Of Business
+                          <InfoTooltip content="Business line this application supports" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={organizationForm.control}
+                    name="aligningOrg"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Aligning Org
+                          <InfoTooltip content="Aligning organization" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="managementContact" className="flex items-center gap-2">
-                    Management Contact
-                    <InfoTooltip content="Primary management contact for the application" />
-                  </Label>
-                  <Input
-                    id="managementContact"
-                    value={organizationForm.getValues("managementContact")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.managementContact, isEditMode)}
-                    {...organizationForm.register("managementContact")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="applicationManager" className="flex items-center gap-2">
-                    Application Manager
-                    <InfoTooltip content="Manager responsible for application operations" />
-                  </Label>
-                  <Input
-                    id="applicationManager"
-                    value={organizationForm.getValues("applicationManager")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.applicationManager, isEditMode)}
-                    {...organizationForm.register("applicationManager")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="portfolio" className="flex items-center gap-2">
-                    Portfolio
-                    <InfoTooltip content="Portfolio this application belongs to" />
-                  </Label>
-                  <Input
-                    id="portfolio"
-                    value={organizationForm.getValues("portfolio")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.portfolio, isEditMode)}
-                    {...organizationForm.register("portfolio")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="portfolioLead" className="flex items-center gap-2">
-                    Portfolio Lead
-                    <InfoTooltip content="Lead person for the portfolio" />
-                  </Label>
-                  <Input
-                    id="portfolioLead"
-                    value={organizationForm.getValues("portfolioLead")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.portfolioLead, isEditMode)}
-                    {...organizationForm.register("portfolioLead")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="team" className="flex items-center gap-2">
-                    Team
-                    <InfoTooltip content="Team responsible for the application" />
-                  </Label>
-                  <Input
-                    id="team"
-                    value={organizationForm.getValues("team")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.team, isEditMode)}
-                    {...organizationForm.register("team")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="organisation" className="flex items-center gap-2">
-                    Organisation
-                    <InfoTooltip content="Organization unit" />
-                  </Label>
-                  <Input
-                    id="organisation"
-                    value={organizationForm.getValues("organisation")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.organisation, isEditMode)}
-                    {...organizationForm.register("organisation")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lineOfBusiness" className="flex items-center gap-2">
-                    Line Of Business
-                    <InfoTooltip content="Business line this application supports" />
-                  </Label>
-                  <Input
-                    id="lineOfBusiness"
-                    value={organizationForm.getValues("lineOfBusiness")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.lineOfBusiness, isEditMode)}
-                    {...organizationForm.register("lineOfBusiness")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="aligningOrg" className="flex items-center gap-2">
-                    Aligning Org
-                    <InfoTooltip content="Aligning organization" />
-                  </Label>
-                  <Input
-                    id="aligningOrg"
-                    value={organizationForm.getValues("aligningOrg")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(organizationForm.formState.errors.aligningOrg, isEditMode)}
-                    {...organizationForm.register("aligningOrg")}
-                  />
-                </div>
-              </div>
+              </Form>
             </CardContent>
           )}
         </Card>
@@ -745,98 +771,122 @@ export default function ApplicationDetailsPage() {
           </CardHeader>
           {expandedSections.supportAlignment && (
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="apsSupport" className="flex items-center gap-2">
-                    APS Support Manager
-                    <InfoTooltip content="Application Production Support Manager" />
-                  </Label>
-                  <Input
-                    id="apsSupport"
-                    value={supportForm.getValues("apsSupport")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(supportForm.formState.errors.apsSupport, isEditMode)}
-                    {...supportForm.register("apsSupport")}
+              <Form {...supportForm}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={supportForm.control}
+                    name="apsSupport"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          APS Support Manager
+                          <InfoTooltip content="Application Production Support Manager" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={supportForm.control}
+                    name="apsTechnicalLead"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          APS Technical Lead
+                          <InfoTooltip content="Technical lead for APS" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={supportForm.control}
+                    name="l2SupportGroup"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          L2 Support Group
+                          <InfoTooltip content="Level 2 support group identifier" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={supportForm.control}
+                    name="l2SupportContact"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          L2 Support Contact
+                          <InfoTooltip content="Level 2 support contact person" />
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} readOnly={!isEditMode} className={!isEditMode ? "bg-gray-50" : ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={supportForm.control}
+                    name="bpsSupported"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          BPS Supported
+                          <InfoTooltip content="Business Process Support availability" />
+                        </FormLabel>
+                        <Select disabled={!isEditMode} value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className={!isEditMode ? "bg-gray-50" : ""}>
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={supportForm.control}
+                    name="supportModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          Support Model
+                          <InfoTooltip content="Type of support model used" />
+                        </FormLabel>
+                        <Select disabled={!isEditMode} value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className={!isEditMode ? "bg-gray-50" : ""}>
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="bps-24x7">BPS - 24x7</SelectItem>
+                            <SelectItem value="bps-business-hours">BPS - Business Hours</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="apsTechnicalLead" className="flex items-center gap-2">
-                    APS Technical Lead
-                    <InfoTooltip content="Technical lead for APS" />
-                  </Label>
-                  <Input
-                    id="apsTechnicalLead"
-                    value={supportForm.getValues("apsTechnicalLead")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(supportForm.formState.errors.apsTechnicalLead, isEditMode)}
-                    {...supportForm.register("apsTechnicalLead")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="l2SupportGroup" className="flex items-center gap-2">
-                    L2 Support Group
-                    <InfoTooltip content="Level 2 support group identifier" />
-                  </Label>
-                  <Input
-                    id="l2SupportGroup"
-                    value={supportForm.getValues("l2SupportGroup")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(supportForm.formState.errors.l2SupportGroup, isEditMode)}
-                    {...supportForm.register("l2SupportGroup")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="l2SupportContact" className="flex items-center gap-2">
-                    L2 Support Contact
-                    <InfoTooltip content="Level 2 support contact person" />
-                  </Label>
-                  <Input
-                    id="l2SupportContact"
-                    value={supportForm.getValues("l2SupportContact")}
-                    readOnly={!isEditMode}
-                    className={getFieldClassName(supportForm.formState.errors.l2SupportContact, isEditMode)}
-                    {...supportForm.register("l2SupportContact")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bpsSupported" className="flex items-center gap-2">
-                    BPS Supported
-                    <InfoTooltip content="Business Process Support availability" />
-                  </Label>
-                  <Select
-                    value={supportForm.getValues("bpsSupported")}
-                    disabled={!isEditMode}
-                    onValueChange={supportForm.setValue.bind(null, "bpsSupported")}
-                  >
-                    <SelectTrigger className={getFieldClassName(supportForm.formState.errors.bpsSupported, isEditMode)}>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="supportModel" className="flex items-center gap-2">
-                    Support Model
-                    <InfoTooltip content="Type of support model used" />
-                  </Label>
-                  <Select
-                    value={supportForm.getValues("supportModel")}
-                    disabled={!isEditMode}
-                    onValueChange={supportForm.setValue.bind(null, "supportModel")}
-                  >
-                    <SelectTrigger className={getFieldClassName(supportForm.formState.errors.supportModel, isEditMode)}>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bps-24x7">BPS - 24x7</SelectItem>
-                      <SelectItem value="bps-business-hours">BPS - Business Hours</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              </Form>
             </CardContent>
           )}
         </Card>
