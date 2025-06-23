@@ -11,7 +11,6 @@ import {
   Headphones,
   MapPin,
   Edit,
-  Save,
   X,
   Eye,
   AlertCircle,
@@ -28,12 +27,17 @@ import { cn } from "@/lib/utils"
 import { ApplicationDetailsSection } from "@/components/configuration/application-details-section"
 import { useConfiguration, useSaveConfiguration } from "@/lib/hooks/use-configuration-data"
 import { fullConfigurationSchema, type FullConfigurationForm } from "@/lib/schemas/configuration"
-
 import { OrganizationAlignmentSection } from "@/components/configuration/organization-alignment-section"
 import { SupportAlignmentSection } from "@/components/configuration/support-alignment-section"
 import { OtherInformationSection } from "@/components/configuration/other-information-section"
 
-// Configuration sections
+// Enhanced UI Components
+import { UnsavedChangesIndicator } from "@/components/ui/unsaved-changes-indicator"
+import { SectionStatusIndicator } from "@/components/ui/section-status-indicator"
+import { EnhancedSaveButton } from "@/components/ui/enhanced-save-button"
+import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog"
+
+// Configuration sections with field mappings
 const configurationSections = [
   {
     id: "application-details",
@@ -41,6 +45,24 @@ const configurationSections = [
     description: "Basic application information and technical specifications",
     icon: FileText,
     color: "blue",
+    fields: [
+      "applicationId",
+      "applicationName",
+      "shortName",
+      "region",
+      "twoDot",
+      "twoDotDesc",
+      "threeDot",
+      "threeDotDesc",
+      "description",
+      "rto",
+      "rpo",
+      "rtoApprover",
+      "rtoApproveDate",
+      "usesMainframe",
+      "applicationHosting",
+      "status",
+    ] as (keyof FullConfigurationForm)[],
   },
   {
     id: "organization-alignment",
@@ -48,6 +70,17 @@ const configurationSections = [
     description: "Organizational contacts and business structure",
     icon: Users,
     color: "green",
+    fields: [
+      "techExec",
+      "managementContact",
+      "applicationManager",
+      "portfolio",
+      "portfolioLead",
+      "team",
+      "organization",
+      "lineOfBusiness",
+      "aligningOrg",
+    ] as (keyof FullConfigurationForm)[],
   },
   {
     id: "support-alignment",
@@ -55,6 +88,19 @@ const configurationSections = [
     description: "Support team configuration and contacts",
     icon: Headphones,
     color: "purple",
+    fields: [
+      "apsSupport",
+      "apsTechnicalLead",
+      "l2SupportGroup",
+      "l2SupportContact",
+      "supportContact",
+      "supportContactEmail",
+      "bpsSupported",
+      "supportModel",
+      "escalationPath",
+      "supportRegion",
+      "supportTimezone",
+    ] as (keyof FullConfigurationForm)[],
   },
   {
     id: "other",
@@ -62,12 +108,24 @@ const configurationSections = [
     description: "Additional metadata and tracking information",
     icon: MapPin,
     color: "orange",
+    fields: [
+      "updatedBy",
+      "updatedDate",
+      "lastAttestedDate",
+      "attestedBy",
+      "nextDueAttestedDate",
+      "createdBy",
+      "createdDate",
+      "version",
+    ] as (keyof FullConfigurationForm)[],
   },
 ]
 
 export default function ApplicationConfigurationPanel() {
   const [currentSection, setCurrentSection] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
   const { toast } = useToast()
 
   const applicationId = "100" // This would come from props or route params
@@ -77,6 +135,7 @@ export default function ApplicationConfigurationPanel() {
 
   const form = useForm<FullConfigurationForm>({
     resolver: zodResolver(fullConfigurationSchema),
+    mode: "onChange", // Enable real-time validation and dirty tracking
     defaultValues: {
       applicationId: "",
       applicationName: "",
@@ -132,37 +191,57 @@ export default function ApplicationConfigurationPanel() {
     }
   }, [configurationData, form])
 
+  // Enhanced state tracking
+  const hasUnsavedChanges = form.formState.isDirty
+  const isSaving = saveConfigurationMutation.isPending
+  const hasValidationErrors = Object.keys(form.formState.errors).length > 0
+
   // Calculate progress through sections
   const progress = ((currentSection + 1) / configurationSections.length) * 100
 
-  // Check if form has unsaved changes
-  const hasUnsavedChanges = form.formState.isDirty
-
-  // Navigation handlers
-  const handleNext = () => {
-    if (currentSection < configurationSections.length - 1) {
-      setCurrentSection(currentSection + 1)
+  // Enhanced navigation with unsaved changes protection
+  const handleNavigationWithProtection = (action: () => void) => {
+    if (hasUnsavedChanges && isEditMode) {
+      setPendingAction(() => action)
+      setShowUnsavedDialog(true)
+    } else {
+      action()
     }
+  }
+
+  const handleNext = () => {
+    handleNavigationWithProtection(() => {
+      if (currentSection < configurationSections.length - 1) {
+        setCurrentSection(currentSection + 1)
+      }
+    })
   }
 
   const handlePrevious = () => {
-    if (currentSection > 0) {
-      setCurrentSection(currentSection - 1)
-    }
+    handleNavigationWithProtection(() => {
+      if (currentSection > 0) {
+        setCurrentSection(currentSection - 1)
+      }
+    })
   }
 
   const handleSectionClick = (sectionIndex: number) => {
-    setCurrentSection(sectionIndex)
+    handleNavigationWithProtection(() => {
+      setCurrentSection(sectionIndex)
+    })
   }
 
-  // Edit mode handlers
+  // Enhanced edit mode handlers
   const handleEditToggle = () => {
     if (isEditMode && hasUnsavedChanges) {
-      const confirmDiscard = window.confirm("You have unsaved changes. Are you sure you want to discard them?")
-      if (!confirmDiscard) return
-      form.reset(configurationData)
+      setPendingAction(() => () => {
+        form.reset(configurationData)
+        setIsEditMode(false)
+      })
+      setShowUnsavedDialog(true)
+    } else {
+      setIsEditMode(!isEditMode)
     }
-    setIsEditMode(!isEditMode)
   }
 
   const handleSave = async (data: FullConfigurationForm) => {
@@ -170,17 +249,35 @@ export default function ApplicationConfigurationPanel() {
       await saveConfigurationMutation.mutateAsync(data)
       setIsEditMode(false)
       form.reset(data) // Reset form state to mark as clean
+
+      // Enhanced success feedback
       toast({
-        title: "Success",
-        description: "Configuration saved successfully",
+        title: "Configuration Saved",
+        description: "All changes have been saved successfully",
+        duration: 3000,
       })
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Save Failed",
         description: "Failed to save configuration. Please try again.",
         variant: "destructive",
+        duration: 5000,
       })
     }
+  }
+
+  // Dialog handlers
+  const handleConfirmUnsavedChanges = () => {
+    if (pendingAction) {
+      pendingAction()
+      setPendingAction(null)
+    }
+    setShowUnsavedDialog(false)
+  }
+
+  const handleCancelUnsavedChanges = () => {
+    setPendingAction(null)
+    setShowUnsavedDialog(false)
   }
 
   const renderCurrentSection = () => {
@@ -219,7 +316,7 @@ export default function ApplicationConfigurationPanel() {
   return (
     <div className="w-full">
       <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto p-4 lg:p-6 xl:p-8">
-        {/* Panel Header */}
+        {/* Enhanced Panel Header */}
         <div className="mb-6 lg:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 lg:mb-6 gap-4">
             <div>
@@ -227,26 +324,27 @@ export default function ApplicationConfigurationPanel() {
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900">
                   Application Configuration Panel
                 </h2>
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "text-xs lg:text-sm",
-                    isEditMode ? "bg-yellow-100 text-yellow-800" : "bg-blue-100 text-blue-800",
-                  )}
-                >
-                  {isEditMode ? "Edit Mode" : "View Mode"}
-                </Badge>
-                {saveConfigurationMutation.isPending && (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    Saving...
+
+                {/* Enhanced Status Badges */}
+                <div className="flex items-center space-x-2">
+                  <Badge
+                    variant="secondary"
+                    className={cn(
+                      "text-xs lg:text-sm",
+                      isEditMode ? "bg-yellow-100 text-yellow-800" : "bg-blue-100 text-blue-800",
+                    )}
+                  >
+                    {isEditMode ? "Edit Mode" : "View Mode"}
                   </Badge>
-                )}
+
+                  <UnsavedChangesIndicator hasUnsavedChanges={hasUnsavedChanges} isSaving={isSaving} variant="badge" />
+                </div>
               </div>
               <p className="text-sm sm:text-base lg:text-lg text-gray-600">
                 {form.watch("applicationId")} - {form.watch("applicationName")}
               </p>
             </div>
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               <span className="text-xs sm:text-sm text-gray-500">
                 Section {currentSection + 1} of {configurationSections.length}
@@ -257,7 +355,7 @@ export default function ApplicationConfigurationPanel() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Enhanced Action Buttons */}
           <div className="flex flex-wrap gap-2 mb-4 lg:mb-6">
             {!isEditMode ? (
               <Button onClick={handleEditToggle} className="flex items-center space-x-2 h-9 lg:h-10">
@@ -266,23 +364,17 @@ export default function ApplicationConfigurationPanel() {
               </Button>
             ) : (
               <>
-                <Button
-                  onClick={form.handleSubmit(handleSave)}
-                  className="flex items-center space-x-2 h-9 lg:h-10 bg-green-600 hover:bg-green-700"
-                  disabled={!hasUnsavedChanges || saveConfigurationMutation.isPending}
-                >
-                  {saveConfigurationMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  <span>{saveConfigurationMutation.isPending ? "Saving..." : "Save Changes"}</span>
-                </Button>
+                <EnhancedSaveButton
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  isSaving={isSaving}
+                  onSave={form.handleSubmit(handleSave)}
+                  disabled={hasValidationErrors}
+                />
                 <Button
                   onClick={handleEditToggle}
                   variant="outline"
                   className="flex items-center space-x-2 h-9 lg:h-10"
-                  disabled={saveConfigurationMutation.isPending}
+                  disabled={isSaving}
                 >
                   <X className="h-4 w-4" />
                   <span>Cancel</span>
@@ -295,7 +387,7 @@ export default function ApplicationConfigurationPanel() {
             </Button>
           </div>
 
-          {/* Section Navigator */}
+          {/* Enhanced Section Navigator */}
           <div className="overflow-x-auto">
             <div className="flex items-center min-w-max lg:min-w-0 lg:justify-center xl:justify-between gap-2 lg:gap-4">
               {configurationSections.map((section, index) => {
@@ -307,11 +399,16 @@ export default function ApplicationConfigurationPanel() {
                     <button
                       onClick={() => handleSectionClick(index)}
                       className={cn(
-                        "flex flex-col items-center space-y-1 lg:space-y-2 p-2 lg:p-3 rounded-lg transition-all duration-200 min-w-[80px] lg:min-w-[120px]",
+                        "relative flex flex-col items-center space-y-1 lg:space-y-2 p-2 lg:p-3 rounded-lg transition-all duration-200 min-w-[80px] lg:min-w-[120px]",
                         isActive && "bg-blue-50 border-2 border-blue-200",
                         !isActive && "hover:bg-gray-50",
                       )}
                     >
+                      {/* Section Status Indicator */}
+                      <div className="absolute -top-1 -right-1">
+                        <SectionStatusIndicator form={form} sectionFields={section.fields} isSaving={isSaving} />
+                      </div>
+
                       <div
                         className={cn(
                           "w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 rounded-full flex items-center justify-center transition-all duration-200",
@@ -347,13 +444,18 @@ export default function ApplicationConfigurationPanel() {
         {/* Section Content */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)}>
-            <Card className="shadow-lg">
+            <Card
+              className={cn(
+                "shadow-lg transition-all duration-200",
+                hasUnsavedChanges && isEditMode && "ring-2 ring-orange-200 ring-opacity-50",
+              )}
+            >
               <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-10">{renderCurrentSection()}</CardContent>
             </Card>
           </form>
         </Form>
 
-        {/* Navigation */}
+        {/* Enhanced Navigation */}
         <div className="flex flex-col sm:flex-row items-center justify-between mt-6 lg:mt-8 gap-4">
           <Button
             variant="outline"
@@ -388,16 +490,40 @@ export default function ApplicationConfigurationPanel() {
           </Button>
         </div>
 
-        {/* Unsaved Changes Warning */}
-        {hasUnsavedChanges && (
-          <Alert className="mt-4 border-yellow-200 bg-yellow-50">
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
-            <AlertDescription className="text-yellow-800">
-              You have unsaved changes. Remember to save before leaving.
-            </AlertDescription>
+        {/* Enhanced Unsaved Changes Warning */}
+        {hasUnsavedChanges && isEditMode && (
+          <Alert className="mt-4 border-orange-200 bg-orange-50 animate-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-800 flex-1">
+                You have unsaved changes in this configuration.
+              </AlertDescription>
+              <UnsavedChangesIndicator
+                hasUnsavedChanges={hasUnsavedChanges}
+                isSaving={isSaving}
+                variant="text"
+                showTooltip={false}
+              />
+            </div>
+          </Alert>
+        )}
+
+        {/* Validation Errors Alert */}
+        {hasValidationErrors && isEditMode && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Please fix the validation errors before saving your changes.</AlertDescription>
           </Alert>
         )}
       </div>
+
+      {/* Unsaved Changes Dialog */}
+      <UnsavedChangesDialog
+        open={showUnsavedDialog}
+        onOpenChange={setShowUnsavedDialog}
+        onConfirm={handleConfirmUnsavedChanges}
+        onCancel={handleCancelUnsavedChanges}
+      />
     </div>
   )
 }
