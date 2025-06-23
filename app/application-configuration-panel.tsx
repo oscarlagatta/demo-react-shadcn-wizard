@@ -29,6 +29,10 @@ import { ApplicationDetailsSection } from "@/components/configuration/applicatio
 import { useConfiguration, useSaveConfiguration } from "@/lib/hooks/use-configuration-data"
 import { fullConfigurationSchema, type FullConfigurationForm } from "@/lib/schemas/configuration"
 
+import { OrganizationAlignmentSection } from "@/components/configuration/organization-alignment-section"
+import { SupportAlignmentSection } from "@/components/configuration/support-alignment-section"
+import { OtherInformationSection } from "@/components/configuration/other-information-section"
+
 // Configuration sections
 const configurationSections = [
   {
@@ -184,29 +188,11 @@ export default function ApplicationConfigurationPanel() {
       case 0:
         return <ApplicationDetailsSection form={form} isEditMode={isEditMode} />
       case 1:
-        return (
-          <div className="text-center py-12">
-            <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Organization Alignment</h3>
-            <p className="text-gray-600">Organization configuration form coming soon...</p>
-          </div>
-        )
+        return <OrganizationAlignmentSection form={form} isEditMode={isEditMode} />
       case 2:
-        return (
-          <div className="text-center py-12">
-            <Headphones className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Support Alignment</h3>
-            <p className="text-gray-600">Support configuration form coming soon...</p>
-          </div>
-        )
+        return <SupportAlignmentSection form={form} isEditMode={isEditMode} />
       case 3:
-        return (
-          <div className="text-center py-12">
-            <MapPin className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Other Information</h3>
-            <p className="text-gray-600">Additional information form coming soon...</p>
-          </div>
-        )
+        return <OtherInformationSection form={form} isEditMode={isEditMode} />
       default:
         return <ApplicationDetailsSection form={form} isEditMode={isEditMode} />
     }
