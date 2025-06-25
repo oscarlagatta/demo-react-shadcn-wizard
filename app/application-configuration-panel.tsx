@@ -3,32 +3,76 @@
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Users,
+  Headphones,
+  MapPin,
+  Edit,
+  Save,
+  X,
+  Eye,
+  AlertCircle,
+  Loader2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form } from "@/components/ui/form"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Edit, Save, X, FileText, Users, Headphones, MapPin } from "lucide-react"
-import { toast } from "sonner"
-
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Form } from "@/components/ui/form"
+import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 import { ApplicationDetailsSection } from "@/components/configuration/application-details-section"
+import { useConfiguration, useSaveConfiguration } from "@/lib/hooks/use-configuration-data"
+import { fullConfigurationSchema, type FullConfigurationForm } from "@/lib/schemas/configuration"
+
 import { OrganizationAlignmentSection } from "@/components/configuration/organization-alignment-section"
 import { SupportAlignmentSection } from "@/components/configuration/support-alignment-section"
 import { OtherInformationSection } from "@/components/configuration/other-information-section"
 
-import { useConfiguration, useSaveConfiguration } from "@/lib/hooks/use-configuration-data"
-import { fullConfigurationSchema, type FullConfigurationForm } from "@/lib/schemas/configuration"
+// Configuration sections
+const configurationSections = [
+  {
+    id: "application-details",
+    title: "Application Details",
+    description: "Basic application information and technical specifications",
+    icon: FileText,
+    color: "blue",
+  },
+  {
+    id: "organization-alignment",
+    title: "Organization Alignment",
+    description: "Organizational contacts and business structure",
+    icon: Users,
+    color: "green",
+  },
+  {
+    id: "support-alignment",
+    title: "Support Alignment",
+    description: "Support team configuration and contacts",
+    icon: Headphones,
+    color: "purple",
+  },
+  {
+    id: "other",
+    title: "Other Information",
+    description: "Additional metadata and tracking information",
+    icon: MapPin,
+    color: "orange",
+  },
+]
 
-interface ApplicationConfigurationPanelProps {
-  applicationId: string
-}
-
-export default function ApplicationConfigurationPanel({ applicationId }: ApplicationConfigurationPanelProps) {
+export default function ApplicationConfigurationPanel() {
+  const [currentSection, setCurrentSection] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
-  const [activeTab, setActiveTab] = useState("application-details")
+  const { toast } = useToast()
 
-  const { data: configuration, isLoading, error } = useConfiguration(applicationId)
+  const applicationId = "100" // This would come from props or route params
+
+  const { data: configurationData, isLoading, error } = useConfiguration(applicationId)
   const saveConfigurationMutation = useSaveConfiguration()
 
   const form = useForm<FullConfigurationForm>({
@@ -37,7 +81,7 @@ export default function ApplicationConfigurationPanel({ applicationId }: Applica
       applicationId: "",
       applicationName: "",
       shortName: "",
-      region: [], // Ensure this is always an array
+      region: [],
       twoDot: "",
       twoDotDesc: "",
       threeDot: "",
@@ -78,203 +122,282 @@ export default function ApplicationConfigurationPanel({ applicationId }: Applica
       createdBy: "",
       createdDate: "",
       version: "",
-      ...configuration, // Spread configuration data when it loads
     },
   })
 
-  // Add this useEffect after the form declaration
+  // Load configuration data into form
   useEffect(() => {
-    if (configuration) {
-      // Ensure region is always an array when resetting form
-      const formData = {
-        ...configuration,
-        region: Array.isArray(configuration.region) ? configuration.region : [],
-      }
-      form.reset(formData)
+    if (configurationData) {
+      form.reset(configurationData)
     }
-  }, [configuration, form])
+  }, [configurationData, form])
 
-  const handleEdit = () => {
-    setIsEditMode(true)
+  // Calculate progress through sections
+  const progress = ((currentSection + 1) / configurationSections.length) * 100
+
+  // Check if form has unsaved changes
+  const hasUnsavedChanges = form.formState.isDirty
+
+  // Navigation handlers
+  const handleNext = () => {
+    if (currentSection < configurationSections.length - 1) {
+      setCurrentSection(currentSection + 1)
+    }
   }
 
-  const handleCancel = () => {
-    setIsEditMode(false)
-    form.reset(configuration) // Reset to original values
+  const handlePrevious = () => {
+    if (currentSection > 0) {
+      setCurrentSection(currentSection - 1)
+    }
+  }
+
+  const handleSectionClick = (sectionIndex: number) => {
+    setCurrentSection(sectionIndex)
+  }
+
+  // Edit mode handlers
+  const handleEditToggle = () => {
+    if (isEditMode && hasUnsavedChanges) {
+      const confirmDiscard = window.confirm("You have unsaved changes. Are you sure you want to discard them?")
+      if (!confirmDiscard) return
+      form.reset(configurationData)
+    }
+    setIsEditMode(!isEditMode)
   }
 
   const handleSave = async (data: FullConfigurationForm) => {
     try {
       await saveConfigurationMutation.mutateAsync(data)
       setIsEditMode(false)
-      toast.success("Configuration saved successfully")
+      form.reset(data) // Reset form state to mark as clean
+      toast({
+        title: "Success",
+        description: "Configuration saved successfully",
+      })
     } catch (error) {
-      toast.error("Failed to save configuration")
+      toast({
+        title: "Error",
+        description: "Failed to save configuration. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const renderCurrentSection = () => {
+    switch (currentSection) {
+      case 0:
+        return <ApplicationDetailsSection form={form} isEditMode={isEditMode} />
+      case 1:
+        return <OrganizationAlignmentSection form={form} isEditMode={isEditMode} />
+      case 2:
+        return <SupportAlignmentSection form={form} isEditMode={isEditMode} />
+      case 3:
+        return <OtherInformationSection form={form} isEditMode={isEditMode} />
+      default:
+        return <ApplicationDetailsSection form={form} isEditMode={isEditMode} />
     }
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading configuration...</p>
-        </div>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-2 text-gray-600">Loading configuration...</span>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Failed to load configuration</p>
-          <Button onClick={() => window.location.reload()}>Retry</Button>
-        </div>
-      </div>
+      <Alert variant="destructive" className="m-6">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>Failed to load configuration. Please try again.</AlertDescription>
+      </Alert>
     )
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 lg:p-6 space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="w-full">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto p-4 lg:p-6 xl:p-8">
+        {/* Panel Header */}
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 lg:mb-6 gap-4">
             <div>
-              <CardTitle className="text-xl lg:text-2xl xl:text-3xl">Application Configuration</CardTitle>
-              <CardDescription className="text-sm lg:text-base">
-                Manage application settings, organizational alignment, and support configuration
-              </CardDescription>
+              <div className="flex items-center space-x-3 mb-2">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900">
+                  Application Configuration Panel
+                </h2>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "text-xs lg:text-sm",
+                    isEditMode ? "bg-yellow-100 text-yellow-800" : "bg-blue-100 text-blue-800",
+                  )}
+                >
+                  {isEditMode ? "Edit Mode" : "View Mode"}
+                </Badge>
+                {saveConfigurationMutation.isPending && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    Saving...
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm sm:text-base lg:text-lg text-gray-600">
+                {form.watch("applicationId")} - {form.watch("applicationName")}
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs lg:text-sm">
-                ID: {configuration?.applicationId}
-              </Badge>
-              <Badge
-                variant={configuration?.status === "In Production" ? "default" : "secondary"}
-                className="text-xs lg:text-sm"
-              >
-                {configuration?.status}
-              </Badge>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <span className="text-xs sm:text-sm text-gray-500">
+                Section {currentSection + 1} of {configurationSections.length}
+              </span>
+              <div className="w-full sm:w-32 lg:w-48">
+                <Progress value={progress} className="h-2" />
+              </div>
             </div>
           </div>
-        </CardHeader>
-      </Card>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-2">
-        {!isEditMode ? (
-          <Button onClick={handleEdit} className="flex items-center gap-2">
-            <Edit className="h-4 w-4" />
-            Edit Configuration
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="flex items-center gap-2"
-              disabled={saveConfigurationMutation.isPending}
-            >
-              <X className="h-4 w-4" />
-              Cancel
-            </Button>
-            <Button
-              onClick={form.handleSubmit(handleSave)}
-              className="flex items-center gap-2"
-              disabled={saveConfigurationMutation.isPending}
-            >
-              <Save className="h-4 w-4" />
-              {saveConfigurationMutation.isPending ? "Saving..." : "Save Changes"}
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2 mb-4 lg:mb-6">
+            {!isEditMode ? (
+              <Button onClick={handleEditToggle} className="flex items-center space-x-2 h-9 lg:h-10">
+                <Edit className="h-4 w-4" />
+                <span>Edit Configuration</span>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  onClick={form.handleSubmit(handleSave)}
+                  className="flex items-center space-x-2 h-9 lg:h-10 bg-green-600 hover:bg-green-700"
+                  disabled={!hasUnsavedChanges || saveConfigurationMutation.isPending}
+                >
+                  {saveConfigurationMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  <span>{saveConfigurationMutation.isPending ? "Saving..." : "Save Changes"}</span>
+                </Button>
+                <Button
+                  onClick={handleEditToggle}
+                  variant="outline"
+                  className="flex items-center space-x-2 h-9 lg:h-10"
+                  disabled={saveConfigurationMutation.isPending}
+                >
+                  <X className="h-4 w-4" />
+                  <span>Cancel</span>
+                </Button>
+              </>
+            )}
+            <Button variant="outline" className="flex items-center space-x-2 h-9 lg:h-10">
+              <Eye className="h-4 w-4" />
+              <span>View History</span>
             </Button>
           </div>
+
+          {/* Section Navigator */}
+          <div className="overflow-x-auto">
+            <div className="flex items-center min-w-max lg:min-w-0 lg:justify-center xl:justify-between gap-2 lg:gap-4">
+              {configurationSections.map((section, index) => {
+                const Icon = section.icon
+                const isActive = index === currentSection
+
+                return (
+                  <div key={section.id} className="flex items-center">
+                    <button
+                      onClick={() => handleSectionClick(index)}
+                      className={cn(
+                        "flex flex-col items-center space-y-1 lg:space-y-2 p-2 lg:p-3 rounded-lg transition-all duration-200 min-w-[80px] lg:min-w-[120px]",
+                        isActive && "bg-blue-50 border-2 border-blue-200",
+                        !isActive && "hover:bg-gray-50",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 rounded-full flex items-center justify-center transition-all duration-200",
+                          isActive && "bg-blue-500 text-white",
+                          !isActive && "bg-gray-200 text-gray-600",
+                        )}
+                      >
+                        <Icon className="h-4 w-4 lg:h-5 lg:w-5 xl:h-6 xl:w-6" />
+                      </div>
+                      <div className="text-center">
+                        <div
+                          className={cn(
+                            "text-xs lg:text-sm xl:text-base font-medium",
+                            isActive && "text-blue-700",
+                            !isActive && "text-gray-600",
+                          )}
+                        >
+                          {section.title}
+                        </div>
+                        <div className="text-xs text-gray-500 hidden lg:block">{section.description}</div>
+                      </div>
+                    </button>
+                    {index < configurationSections.length - 1 && (
+                      <div className="w-4 lg:w-8 xl:w-12 h-px bg-gray-300 mx-1 lg:mx-2" />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Section Content */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSave)}>
+            <Card className="shadow-lg">
+              <CardContent className="p-4 sm:p-6 lg:p-8 xl:p-10">{renderCurrentSection()}</CardContent>
+            </Card>
+          </form>
+        </Form>
+
+        {/* Navigation */}
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 lg:mt-8 gap-4">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentSection === 0}
+            className="flex items-center space-x-2 h-9 lg:h-10 xl:h-11 w-full sm:w-auto"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span>Previous Section</span>
+          </Button>
+
+          <div className="flex items-center space-x-2">
+            {configurationSections.map((_, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "w-2 h-2 lg:w-3 lg:h-3 rounded-full transition-all duration-200",
+                  index === currentSection && "bg-blue-500",
+                  index !== currentSection && "bg-gray-300",
+                )}
+              />
+            ))}
+          </div>
+
+          <Button
+            onClick={handleNext}
+            disabled={currentSection === configurationSections.length - 1}
+            className="flex items-center space-x-2 h-9 lg:h-10 xl:h-11 w-full sm:w-auto"
+          >
+            <span>Next Section</span>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Unsaved Changes Warning */}
+        {hasUnsavedChanges && (
+          <Alert className="mt-4 border-yellow-200 bg-yellow-50">
+            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800">
+              You have unsaved changes. Remember to save before leaving.
+            </AlertDescription>
+          </Alert>
         )}
       </div>
-
-      {/* Configuration Form */}
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
-          <Card>
-            <CardContent className="p-0">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="border-b">
-                  <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto p-1">
-                    <TabsTrigger
-                      value="application-details"
-                      className="flex items-center gap-2 py-3 px-4 text-xs lg:text-sm"
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span className="hidden sm:inline">Application Details</span>
-                      <span className="sm:hidden">Details</span>
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="organization-alignment"
-                      className="flex items-center gap-2 py-3 px-4 text-xs lg:text-sm"
-                    >
-                      <Users className="h-4 w-4" />
-                      <span className="hidden sm:inline">Organization</span>
-                      <span className="sm:hidden">Org</span>
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="support-alignment"
-                      className="flex items-center gap-2 py-3 px-4 text-xs lg:text-sm"
-                    >
-                      <Headphones className="h-4 w-4" />
-                      <span className="hidden sm:inline">Support</span>
-                      <span className="sm:hidden">Support</span>
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="other-information"
-                      className="flex items-center gap-2 py-3 px-4 text-xs lg:text-sm"
-                    >
-                      <MapPin className="h-4 w-4" />
-                      <span className="hidden sm:inline">Other Info</span>
-                      <span className="sm:hidden">Other</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                <div className="p-6 lg:p-8">
-                  <TabsContent value="application-details" className="mt-0">
-                    <ApplicationDetailsSection form={form} isEditMode={isEditMode} />
-                  </TabsContent>
-
-                  <TabsContent value="organization-alignment" className="mt-0">
-                    <OrganizationAlignmentSection form={form} isEditMode={isEditMode} />
-                  </TabsContent>
-
-                  <TabsContent value="support-alignment" className="mt-0">
-                    <SupportAlignmentSection form={form} isEditMode={isEditMode} />
-                  </TabsContent>
-
-                  <TabsContent value="other-information" className="mt-0">
-                    <OtherInformationSection form={form} isEditMode={isEditMode} />
-                  </TabsContent>
-                </div>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </form>
-      </Form>
-
-      {/* Footer Information */}
-      <Card>
-        <CardContent className="p-4 lg:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs lg:text-sm text-gray-600">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <span>Last Updated: {configuration?.updatedDate}</span>
-              <Separator orientation="vertical" className="hidden sm:block h-4" />
-              <span>Updated By: {configuration?.updatedBy}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <span>Version: {configuration?.version}</span>
-              <Separator orientation="vertical" className="hidden sm:block h-4" />
-              <span>Next Attestation: {configuration?.nextDueAttestedDate}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

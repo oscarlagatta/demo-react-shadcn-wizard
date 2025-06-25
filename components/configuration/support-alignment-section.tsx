@@ -9,11 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useAPSSupport, useAPSTechLeads } from "@/lib/hooks/use-configuration-data"
 
 interface SupportAlignmentSectionProps {
   form: UseFormReturn<FullConfigurationForm>
@@ -35,9 +30,6 @@ const InfoTooltip = ({ content }: { content: string }) => (
 
 export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSectionProps) {
   const watchedValues = form.watch()
-
-  const { data: apsSupportOptions = [], isLoading: apsSupportLoading } = useAPSSupport()
-  const { data: apsTechLeadOptions = [], isLoading: apsTechLeadLoading } = useAPSTechLeads()
 
   return (
     <div className="space-y-6 lg:space-y-8 xl:space-y-10">
@@ -66,59 +58,22 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
               control={form.control}
               name="apsSupport"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     APS Support Manager{" "}
                     <InfoTooltip content="Application Production Support Manager responsible for overall support" />
                   </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          disabled={!isEditMode || apsSupportLoading}
-                          className={cn(
-                            "h-9 lg:h-10 xl:h-11 justify-between",
-                            !field.value && "text-muted-foreground",
-                            !isEditMode && "bg-gray-50",
-                          )}
-                        >
-                          {field.value
-                            ? apsSupportOptions.find((option) => option.value === field.value)?.label
-                            : "Select APS Support Manager"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search APS Support Manager..." />
-                        <CommandList>
-                          <CommandEmpty>No APS Support Manager found.</CommandEmpty>
-                          <CommandGroup>
-                            {apsSupportOptions.map((option) => (
-                              <CommandItem
-                                value={option.label}
-                                key={option.value}
-                                onSelect={() => {
-                                  field.onChange(option.value)
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    option.value === field.value ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                                {option.label}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={!isEditMode}
+                      className={cn(
+                        "h-9 lg:h-10 xl:h-11",
+                        !isEditMode && "bg-gray-50",
+                        isEditMode && "focus:ring-2 focus:ring-purple-500",
+                      )}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -130,58 +85,21 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
               control={form.control}
               name="apsTechnicalLead"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     APS Technical Lead <InfoTooltip content="Technical lead for Application Production Support" />
                   </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          disabled={!isEditMode || apsTechLeadLoading}
-                          className={cn(
-                            "h-9 lg:h-10 xl:h-11 justify-between",
-                            !field.value && "text-muted-foreground",
-                            !isEditMode && "bg-gray-50",
-                          )}
-                        >
-                          {field.value
-                            ? apsTechLeadOptions.find((option) => option.value === field.value)?.label
-                            : "Select APS Technical Lead"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search APS Technical Lead..." />
-                        <CommandList>
-                          <CommandEmpty>No APS Technical Lead found.</CommandEmpty>
-                          <CommandGroup>
-                            {apsTechLeadOptions.map((option) => (
-                              <CommandItem
-                                value={option.label}
-                                key={option.value}
-                                onSelect={() => {
-                                  field.onChange(option.value)
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    option.value === field.value ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                                {option.label}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={!isEditMode}
+                      className={cn(
+                        "h-9 lg:h-10 xl:h-11",
+                        !isEditMode && "bg-gray-50",
+                        isEditMode && "focus:ring-2 focus:ring-purple-500",
+                      )}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -340,6 +258,7 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                     <SelectContent>
                       <SelectItem value="yes">Yes</SelectItem>
                       <SelectItem value="no">No</SelectItem>
+                      <SelectItem value="limited">Limited</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
