@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -33,9 +33,66 @@ export default function ApplicationConfigurationPanel({ applicationId }: Applica
 
   const form = useForm<FullConfigurationForm>({
     resolver: zodResolver(fullConfigurationSchema),
-    defaultValues: configuration,
-    values: configuration, // This ensures form updates when data loads
+    defaultValues: {
+      applicationId: "",
+      applicationName: "",
+      shortName: "",
+      region: [], // Ensure this is always an array
+      twoDot: "",
+      twoDotDesc: "",
+      threeDot: "",
+      threeDotDesc: "",
+      description: "",
+      rto: "",
+      rpo: "",
+      rtoApprover: "",
+      rtoApproveDate: "",
+      usesMainframe: "no",
+      applicationHosting: "in-house",
+      status: "",
+      techExec: "",
+      managementContact: "",
+      applicationManager: "",
+      portfolio: "",
+      portfolioLead: "",
+      team: "",
+      organization: "",
+      lineOfBusiness: "",
+      aligningOrg: "",
+      apsSupport: "",
+      apsTechnicalLead: "",
+      l2SupportGroup: "",
+      l2SupportContact: "",
+      supportContact: "",
+      supportContactEmail: "",
+      bpsSupported: "no",
+      supportModel: "",
+      escalationPath: "",
+      supportRegion: "",
+      supportTimezone: "",
+      updatedBy: "",
+      updatedDate: "",
+      lastAttestedDate: "",
+      attestedBy: "",
+      nextDueAttestedDate: "",
+      createdBy: "",
+      createdDate: "",
+      version: "",
+      ...configuration, // Spread configuration data when it loads
+    },
   })
+
+  // Add this useEffect after the form declaration
+  useEffect(() => {
+    if (configuration) {
+      // Ensure region is always an array when resetting form
+      const formData = {
+        ...configuration,
+        region: Array.isArray(configuration.region) ? configuration.region : [],
+      }
+      form.reset(formData)
+    }
+  }, [configuration, form])
 
   const handleEdit = () => {
     setIsEditMode(true)

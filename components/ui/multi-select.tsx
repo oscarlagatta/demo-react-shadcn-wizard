@@ -24,7 +24,7 @@ interface MultiSelectProps {
 
 export function MultiSelect({
   options,
-  selected,
+  selected = [], // Add default empty array
   onChange,
   placeholder = "Select items...",
   className,
@@ -32,15 +32,18 @@ export function MultiSelect({
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
 
+  // Ensure selected is always an array
+  const selectedArray = selected || []
+
   const handleUnselect = (item: string) => {
-    onChange(selected.filter((i) => i !== item))
+    onChange(selectedArray.filter((i) => i !== item))
   }
 
   const handleSelect = (item: string) => {
-    if (selected.includes(item)) {
-      onChange(selected.filter((i) => i !== item))
+    if (selectedArray.includes(item)) {
+      onChange(selectedArray.filter((i) => i !== item))
     } else {
-      onChange([...selected, item])
+      onChange([...selectedArray, item])
     }
   }
 
@@ -52,12 +55,15 @@ export function MultiSelect({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn("w-full justify-between text-left font-normal", !selected.length && "text-muted-foreground")}
+            className={cn(
+              "w-full justify-between text-left font-normal",
+              !selectedArray.length && "text-muted-foreground",
+            )}
             disabled={disabled}
           >
             <div className="flex gap-1 flex-wrap">
-              {selected.length > 0
-                ? selected.map((item) => {
+              {selectedArray.length > 0
+                ? selectedArray.map((item) => {
                     const option = options.find((opt) => opt.value === item)
                     return (
                       <Badge
@@ -107,7 +113,7 @@ export function MultiSelect({
                 {options.map((option) => (
                   <CommandItem key={option.value} onSelect={() => handleSelect(option.value)}>
                     <Check
-                      className={cn("mr-2 h-4 w-4", selected.includes(option.value) ? "opacity-100" : "opacity-0")}
+                      className={cn("mr-2 h-4 w-4", selectedArray.includes(option.value) ? "opacity-100" : "opacity-0")}
                     />
                     {option.label}
                   </CommandItem>
