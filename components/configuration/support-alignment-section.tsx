@@ -13,8 +13,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useAPSSupport } from "@/hooks/use-aps-support"
-import { useAPSTechLeads } from "@/hooks/use-aps-tech-leads"
+import { useAPSSupport, useAPSTechLeads } from "@/lib/hooks/use-configuration-data"
 
 interface SupportAlignmentSectionProps {
   form: UseFormReturn<FullConfigurationForm>
@@ -254,7 +253,12 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input {...field} type="email" disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
+                      <Input
+                        {...field}
+                        type="email"
+                        disabled={true}
+                        className="pl-9 lg:pl-10 h-9 lg:h-10 xl:h-11 bg-gray-50"
+                      />
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     </div>
                   </FormControl>
@@ -292,25 +296,9 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Support Region <InfoTooltip content="Geographic region for support coverage" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-purple-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select support region" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="apac">APAC</SelectItem>
-                      <SelectItem value="emea">EMEA</SelectItem>
-                      <SelectItem value="americas">Americas</SelectItem>
-                      <SelectItem value="global">Global (24x7)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -426,12 +414,8 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                 <FormControl>
                   <Textarea
                     {...field}
-                    disabled={!isEditMode}
-                    className={cn(
-                      "min-h-[80px] lg:min-h-[100px] xl:min-h-[120px] text-sm lg:text-base",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-purple-500",
-                    )}
+                    disabled={true}
+                    className="min-h-[80px] lg:min-h-[100px] xl:min-h-[120px] text-sm lg:text-base bg-gray-50"
                   />
                 </FormControl>
                 <FormMessage />
