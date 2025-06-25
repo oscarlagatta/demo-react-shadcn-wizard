@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
-import { useTeams } from "@/lib/hooks/use-teams"
-import { useAPSSupport } from "@/lib/hooks/use-aps-support"
+import { useTeams } from "@/lib/hooks/use-configuration-data"
 
 interface OrganizationAlignmentSectionProps {
   form: UseFormReturn<FullConfigurationForm>
@@ -34,7 +33,6 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
 
   // Add these hooks at the top for autocomplete data
   const { data: teamOptions = [], isLoading: teamsLoading } = useTeams()
-  const { data: apsSupportOptions = [], isLoading: apsSupportLoading } = useAPSSupport()
 
   return (
     <div className="space-y-6 lg:space-y-8 xl:space-y-10">
