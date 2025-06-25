@@ -91,7 +91,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Application ID <InfoTooltip content="Unique identifier for the application" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,15 +107,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Application Name <InfoTooltip content="Full name of the application" />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditMode}
-                    className={cn(
-                      "h-9 lg:h-10 xl:h-11",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-blue-500",
-                    )}
-                  />
+                  <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -131,16 +123,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Short Name <InfoTooltip content="Abbreviated name for the application" />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditMode}
-                    maxLength={10}
-                    className={cn(
-                      "h-9 lg:h-10 xl:h-11",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-blue-500",
-                    )}
-                  />
+                  <Input {...field} disabled={true} maxLength={10} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -209,16 +192,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Two Dot <InfoTooltip content="Two-level application categorization code" />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditMode}
-                    maxLength={5}
-                    className={cn(
-                      "h-9 lg:h-10 xl:h-11",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-blue-500",
-                    )}
-                  />
+                  <Input {...field} disabled={true} maxLength={5} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -234,15 +208,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Two Dot Description <InfoTooltip content="Description of the two-dot categorization" />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditMode}
-                    className={cn(
-                      "h-9 lg:h-10 xl:h-11",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-blue-500",
-                    )}
-                  />
+                  <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -258,16 +224,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Three Dot <InfoTooltip content="Three-level application categorization code" />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditMode}
-                    maxLength={5}
-                    className={cn(
-                      "h-9 lg:h-10 xl:h-11",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-blue-500",
-                    )}
-                  />
+                  <Input {...field} disabled={true} maxLength={5} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -283,15 +240,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Three Dot Description <InfoTooltip content="Description of the three-dot categorization" />
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={!isEditMode}
-                    className={cn(
-                      "h-9 lg:h-10 xl:h-11",
-                      !isEditMode && "bg-gray-50",
-                      isEditMode && "focus:ring-2 focus:ring-blue-500",
-                    )}
-                  />
+                  <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

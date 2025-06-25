@@ -25,7 +25,7 @@ The Application Configuration Panel employs a **hybrid data persistence strategy
 
 ### Server-Side Simulation
 
-```typescript
+\`\`\`typescript
 // Mock API functions simulate real backend operations
 const fetchConfiguration = async (applicationId: string) => {
   await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -40,11 +40,11 @@ const saveConfiguration = async (data: any) => {
   await new Promise((resolve) => setTimeout(resolve, 2000))
   return { success: true, message: "Configuration saved successfully" }
 }
-```
+\`\`\`
 
 ### Client-Side Caching Strategy
 
-```typescript
+\`\`\`typescript
 export const useConfiguration = (applicationId: string) => {
   return useQuery({
     queryKey: ["configuration", applicationId],
@@ -53,7 +53,7 @@ export const useConfiguration = (applicationId: string) => {
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   })
 }
-```
+\`\`\`
 
 ## 3. Data Formats and Structure
 
@@ -61,7 +61,7 @@ export const useConfiguration = (applicationId: string) => {
 
 The application uses strongly-typed JSON objects with Zod schema validation:
 
-```typescript
+\`\`\`typescript
 export const fullConfigurationSchema = applicationDetailsSchema
   .merge(organizationAlignmentSchema)
   .merge(supportAlignmentSchema)
@@ -77,7 +77,7 @@ export const fullConfigurationSchema = applicationDetailsSchema
   rpo: "tier-5-daily-backup",
   // ... additional 30+ fields across all sections
 }
-```
+\`\`\`
 
 ### Schema-Driven Validation
 
@@ -109,7 +109,7 @@ Each section has its own schema that validates specific data types:
 
 ### On-Demand Saving Strategy
 
-```typescript
+\`\`\`typescript
 const handleSave = async (data: FullConfigurationForm) => {
   try {
     await saveConfigurationMutation.mutateAsync(data)
@@ -127,7 +127,7 @@ const handleSave = async (data: FullConfigurationForm) => {
     })
   }
 }
-```
+\`\`\`
 
 ### Save Triggers
 
@@ -138,7 +138,7 @@ const handleSave = async (data: FullConfigurationForm) => {
 
 ### Change Detection
 
-```typescript
+\`\`\`typescript
 // Tracks unsaved changes across all sections
 const hasUnsavedChanges = form.formState.isDirty
 
@@ -151,7 +151,7 @@ const hasUnsavedChanges = form.formState.isDirty
     </AlertDescription>
   </Alert>
 )}
-```
+\`\`\`
 
 ## 6. Tab-Specific Data Management
 
@@ -191,7 +191,7 @@ const hasUnsavedChanges = form.formState.isDirty
 
 ### Unified Form State
 
-```typescript
+\`\`\`typescript
 const form = useForm<FullConfigurationForm>({
   resolver: zodResolver(fullConfigurationSchema),
   defaultValues: {
@@ -208,7 +208,7 @@ const renderCurrentSection = () => {
     case 3: return <OtherInformationSection form={form} isEditMode={isEditMode} />
   }
 }
-```
+\`\`\`
 
 ### Cross-Tab Data Consistency
 
@@ -230,7 +230,7 @@ const renderCurrentSection = () => {
 
 ### Data Transmission Security
 
-```typescript
+\`\`\`typescript
 // Simulated secure API calls
 const saveConfiguration = async (data: any) => {
   // In real implementation, this would use HTTPS
@@ -238,7 +238,7 @@ const saveConfiguration = async (data: any) => {
   await new Promise((resolve) => setTimeout(resolve, 2000))
   return { success: true, message: "Configuration saved successfully" }
 }
-```
+\`\`\`
 
 ### Privacy Considerations
 
@@ -252,7 +252,7 @@ const saveConfiguration = async (data: any) => {
 
 ### Network Error Handling
 
-```typescript
+\`\`\`typescript
 const { data: configurationData, isLoading, error } = useConfiguration(applicationId)
 
 if (error) {
@@ -263,7 +263,7 @@ if (error) {
     </Alert>
   )
 }
-```
+\`\`\`
 
 ### Data Recovery Mechanisms
 
@@ -277,7 +277,7 @@ if (error) {
 
 ### Caching Strategy
 
-```typescript
+\`\`\`typescript
 export const useRegions = () => {
   return useQuery({
     queryKey: ["regions"],
@@ -285,7 +285,7 @@ export const useRegions = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   })
 }
-```
+\`\`\`
 
 ### Lazy Loading
 
@@ -330,13 +330,13 @@ This comprehensive data persistence strategy ensures reliable, secure, and perfo
 
 The Application Configuration Panel employs a **multi-layered state management architecture** that combines several complementary strategies:
 
-```typescript
+\`\`\`typescript
 // Architecture Layers:
 // 1. Server State Layer (React Query)
 // 2. Form State Layer (React Hook Form)
 // 3. UI State Layer (Local Component State)
 // 4. Global State Layer (Implicit through React Query Cache)
-```
+\`\`\`
 
 ## 2. Component-Level State Management Analysis
 
@@ -344,7 +344,7 @@ The Application Configuration Panel employs a **multi-layered state management a
 
 #### Internal State Management
 
-```typescript
+\`\`\`typescript
 export default function ApplicationConfigurationPanel() {
   // UI Navigation State
   const [currentSection, setCurrentSection] = useState(0)
@@ -364,11 +364,11 @@ export default function ApplicationConfigurationPanel() {
   const { data: configurationData, isLoading, error } = useConfiguration(applicationId)
   const saveConfigurationMutation = useSaveConfiguration()
 }
-```
+\`\`\`
 
 #### State Synchronization Mechanisms
 
-```typescript
+\`\`\`typescript
 // Automatic Form Population from Server Data
 useEffect(() => {
   if (configurationData) {
@@ -384,13 +384,13 @@ const handleSave = async (data: FullConfigurationForm) => {
   await saveConfigurationMutation.mutateAsync(data)
   form.reset(data) // Marks form as clean after successful save
 }
-```
+\`\`\`
 
 ### 2.2 Section Components State Management
 
 #### Application Details Section
 
-```typescript
+\`\`\`typescript
 export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetailsSectionProps) {
   // External Data Dependencies
   const { data: regions = [], isLoading: regionsLoading } = useRegions()
@@ -401,11 +401,11 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
   // No internal state - relies entirely on passed form instance
   // All state changes flow through the shared form object
 }
-```
+\`\`\`
 
 #### Organization Alignment Section
 
-```typescript
+\`\`\`typescript
 export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationAlignmentSectionProps) {
   // Real-time State Watching for Summary Display
   const watchedValues = form.watch()
@@ -424,13 +424,13 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
     </div>
   )
 }
-```
+\`\`\`
 
 ## 3. Data Flow and State Synchronization Patterns
 
 ### 3.1 Unidirectional Data Flow
 
-```mermaid
+\`\`\`mermaid
 Diagram.download-icon {
             cursor: pointer;
             transform-origin: center;
@@ -443,13 +443,13 @@ Diagram.download-icon {
           transform: translateY(-1.5px);
         }
         #mermaid-diagram-r9ae{font-family:var(--font-geist-sans);font-size:12px;fill:#000000;}#mermaid-diagram-r9ae .error-icon{fill:#552222;}#mermaid-diagram-r9ae .error-text{fill:#552222;stroke:#552222;}#mermaid-diagram-r9ae .edge-thickness-normal{stroke-width:1px;}#mermaid-diagram-r9ae .edge-thickness-thick{stroke-width:3.5px;}#mermaid-diagram-r9ae .edge-pattern-solid{stroke-dasharray:0;}#mermaid-diagram-r9ae .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-diagram-r9ae .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-diagram-r9ae .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-diagram-r9ae .marker{fill:#666;stroke:#666;}#mermaid-diagram-r9ae .marker.cross{stroke:#666;}#mermaid-diagram-r9ae svg{font-family:var(--font-geist-sans);font-size:12px;}#mermaid-diagram-r9ae p{margin:0;}#mermaid-diagram-r9ae .label{font-family:var(--font-geist-sans);color:#000000;}#mermaid-diagram-r9ae .cluster-label text{fill:#333;}#mermaid-diagram-r9ae .cluster-label span{color:#333;}#mermaid-diagram-r9ae .cluster-label span p{background-color:transparent;}#mermaid-diagram-r9ae .label text,#mermaid-diagram-r9ae span{fill:#000000;color:#000000;}#mermaid-diagram-r9ae .node rect,#mermaid-diagram-r9ae .node circle,#mermaid-diagram-r9ae .node ellipse,#mermaid-diagram-r9ae .node polygon,#mermaid-diagram-r9ae .node path{fill:#eee;stroke:#999;stroke-width:1px;}#mermaid-diagram-r9ae .rough-node .label text,#mermaid-diagram-r9ae .node .label text{text-anchor:middle;}#mermaid-diagram-r9ae .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-diagram-r9ae .node .label{text-align:center;}#mermaid-diagram-r9ae .node.clickable{cursor:pointer;}#mermaid-diagram-r9ae .arrowheadPath{fill:#333333;}#mermaid-diagram-r9ae .edgePath .path{stroke:#666;stroke-width:2.0px;}#mermaid-diagram-r9ae .flowchart-link{stroke:#666;fill:none;}#mermaid-diagram-r9ae .edgeLabel{background-color:white;text-align:center;}#mermaid-diagram-r9ae .edgeLabel p{background-color:white;}#mermaid-diagram-r9ae .edgeLabel rect{opacity:0.5;background-color:white;fill:white;}#mermaid-diagram-r9ae .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#mermaid-diagram-r9ae .cluster rect{fill:hsl(0, 0%, 98.9215686275%);stroke:#707070;stroke-width:1px;}#mermaid-diagram-r9ae .cluster text{fill:#333;}#mermaid-diagram-r9ae .cluster span{color:#333;}#mermaid-diagram-r9ae div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:var(--font-geist-sans);font-size:12px;background:hsl(-160, 0%, 93.3333333333%);border:1px solid #707070;border-radius:2px;pointer-events:none;z-index:100;}#mermaid-diagram-r9ae .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#mermaid-diagram-r9ae .flowchart-link{stroke:hsl(var(--gray-400));stroke-width:1px;}#mermaid-diagram-r9ae .marker,#mermaid-diagram-r9ae marker,#mermaid-diagram-r9ae marker *{fill:hsl(var(--gray-400))!important;stroke:hsl(var(--gray-400))!important;}#mermaid-diagram-r9ae .label,#mermaid-diagram-r9ae text,#mermaid-diagram-r9ae text>tspan{fill:hsl(var(--black))!important;color:hsl(var(--black))!important;}#mermaid-diagram-r9ae .background,#mermaid-diagram-r9ae rect.relationshipLabelBox{fill:hsl(var(--white))!important;}#mermaid-diagram-r9ae .entityBox,#mermaid-diagram-r9ae .attributeBoxEven{fill:hsl(var(--gray-150))!important;}#mermaid-diagram-r9ae .attributeBoxOdd{fill:hsl(var(--white))!important;}#mermaid-diagram-r9ae .label-container,#mermaid-diagram-r9ae rect.actor{fill:hsl(var(--white))!important;stroke:hsl(var(--gray-400))!important;}#mermaid-diagram-r9ae line{stroke:hsl(var(--gray-400))!important;}#mermaid-diagram-r9ae :root{--mermaid-font-family:var(--font-geist-sans);}Server/APIReact Query CacheForm Default ValuesForm StateUI ComponentsUser InteractionsSave Mutation
-```
+\`\`\`
 
 ### 3.2 State Synchronization Mechanisms
 
 #### Cross-Section State Sharing
 
-```typescript
+\`\`\`typescript
 // All sections share the same form instance
 const renderCurrentSection = () => {
   const sharedProps = { form, isEditMode }
@@ -461,11 +461,11 @@ const renderCurrentSection = () => {
     case 3: return <OtherInformationSection {...sharedProps} />
   }
 }
-```
+\`\`\`
 
 #### Real-time Field Watching
 
-```typescript
+\`\`\`typescript
 // Components can watch specific fields for real-time updates
 const ApplicationDetailsSection = ({ form }) => {
   // Watch specific fields for summary display
@@ -484,7 +484,7 @@ const ApplicationDetailsSection = ({ form }) => {
     </div>
   )
 }
-```
+\`\`\`
 
 ## 4. Data Persistence Strategy Deep Dive
 
@@ -492,7 +492,7 @@ const ApplicationDetailsSection = ({ form }) => {
 
 #### Tier 1: Browser Memory (React Query Cache)
 
-```typescript
+\`\`\`typescript
 // React Query Configuration
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -504,11 +504,11 @@ const queryClient = new QueryClient({
     },
   },
 })
-```
+\`\`\`
 
 #### Tier 2: Form State (React Hook Form)
 
-```typescript
+\`\`\`typescript
 // Form state persists across navigation
 const form = useForm<FullConfigurationForm>({
   mode: "onChange", // Validates on every change
@@ -520,11 +520,11 @@ const form = useForm<FullConfigurationForm>({
     // ... 30+ fields
   },
 })
-```
+\`\`\`
 
 #### Tier 3: Server Persistence (Mock API)
 
-```typescript
+\`\`\`typescript
 // Simulated server persistence with realistic delays
 const saveConfiguration = async (data: FullConfigurationForm) => {
   // Simulate network latency
@@ -543,13 +543,13 @@ const saveConfiguration = async (data: FullConfigurationForm) => {
     version: "v2.1.4" // Incremented version
   }
 }
-```
+\`\`\`
 
 ### 4.2 Data Format Specifications
 
 #### Primary Data Structure (JSON)
 
-```typescript
+\`\`\`typescript
 interface FullConfigurationForm {
   // Application Details (12 fields)
   applicationId: string
@@ -603,11 +603,11 @@ interface FullConfigurationForm {
   createdDate: string
   version: string
 }
-```
+\`\`\`
 
 #### Validation Schema Structure
 
-```typescript
+\`\`\`typescript
 // Hierarchical validation with section-specific rules
 export const applicationDetailsSchema = z.object({
   applicationName: z.string()
@@ -620,13 +620,13 @@ export const applicationDetailsSchema = z.object({
     .min(1, "At least one region must be selected"),
   // ... additional validation rules
 })
-```
+\`\`\`
 
 ### 4.3 Persistence Scope and Lifecycle
 
 #### Application-Wide Scope
 
-```typescript
+\`\`\`typescript
 // Single configuration per application ID
 const useConfiguration = (applicationId: string) => {
   return useQuery({
@@ -635,11 +635,11 @@ const useConfiguration = (applicationId: string) => {
     enabled: !!applicationId,
   })
 }
-```
+\`\`\`
 
 #### Session-Based Persistence
 
-```typescript
+\`\`\`typescript
 // Form state persists during browser session
 const ApplicationConfigurationPanel = () => {
   // State survives component re-renders and navigation
@@ -653,7 +653,7 @@ const ApplicationConfigurationPanel = () => {
     setCurrentSection(sectionIndex)
   }
 }
-```
+\`\`\`
 
 ## 5. State Management Adaptation to User Interactions
 
@@ -661,7 +661,7 @@ const ApplicationConfigurationPanel = () => {
 
 #### View Mode → Edit Mode
 
-```typescript
+\`\`\`typescript
 const handleEditToggle = () => {
   if (isEditMode && hasUnsavedChanges) {
     // Protect against accidental data loss
@@ -673,11 +673,11 @@ const handleEditToggle = () => {
   }
   setIsEditMode(!isEditMode)
 }
-```
+\`\`\`
 
 #### Edit Mode → Save State
 
-```typescript
+\`\`\`typescript
 const handleSave = async (data: FullConfigurationForm) => {
   try {
     // Optimistic UI update
@@ -704,13 +704,13 @@ const handleSave = async (data: FullConfigurationForm) => {
     })
   }
 }
-```
+\`\`\`
 
 ### 5.2 Navigation State Management
 
 #### Section Navigation with State Preservation
 
-```typescript
+\`\`\`typescript
 const handleSectionClick = (sectionIndex: number) => {
   // No validation required - form state preserved
   setCurrentSection(sectionIndex)
@@ -718,23 +718,23 @@ const handleSectionClick = (sectionIndex: number) => {
   // All sections share the same form instance
   // Changes made in one section are immediately available in others
 }
-```
+\`\`\`
 
 #### Progress Tracking
 
-```typescript
+\`\`\`typescript
 // Dynamic progress calculation
 const progress = ((currentSection + 1) / configurationSections.length) * 100
 
 // Visual progress indicators
 <Progress value={progress} className="h-2" />
-```
+\`\`\`
 
 ### 5.3 Field-Level State Management
 
 #### Real-time Validation
 
-```typescript
+\`\`\`typescript
 // Field-level validation on change
 const form = useForm({
   mode: "onChange", // Validates immediately on field change
@@ -754,11 +754,11 @@ const ApplicationDetailsSection = ({ form }) => {
     </>
   )
 }
-```
+\`\`\`
 
 #### Dependent Field Updates
 
-```typescript
+\`\`\`typescript
 // Multi-select regions affecting other fields
 const handleRegionChange = (selectedRegions: string[]) => {
   form.setValue("region", selectedRegions)
@@ -768,13 +768,13 @@ const handleRegionChange = (selectedRegions: string[]) => {
     form.setValue("supportRegion", selectedRegions[0])
   }
 }
-```
+\`\`\`
 
 ## 6. Error Handling and Recovery Strategies
 
 ### 6.1 Network Error Recovery
 
-```typescript
+\`\`\`typescript
 const { data, isLoading, error, refetch } = useConfiguration(applicationId)
 
 // Automatic retry with exponential backoff
@@ -790,11 +790,11 @@ const queryClient = new QueryClient({
     },
   },
 })
-```
+\`\`\`
 
 ### 6.2 Form State Recovery
 
-```typescript
+\`\`\`typescript
 // Preserve form state during errors
 const handleSave = async (data: FullConfigurationForm) => {
   const originalEditMode = isEditMode
@@ -809,11 +809,11 @@ const handleSave = async (data: FullConfigurationForm) => {
     // User doesn't lose their changes
   }
 }
-```
+\`\`\`
 
 ### 6.3 Data Consistency Checks
 
-```typescript
+\`\`\`typescript
 // Validate data consistency before save
 const validateConsistency = (data: FullConfigurationForm) => {
   const errors: string[] = []
@@ -830,13 +830,13 @@ const validateConsistency = (data: FullConfigurationForm) => {
   
   return errors
 }
-```
+\`\`\`
 
 ## 7. Performance Optimization Strategies
 
 ### 7.1 Selective Re-rendering
 
-```typescript
+\`\`\`typescript
 // Memoized section components to prevent unnecessary re-renders
 const ApplicationDetailsSection = memo(({ form, isEditMode }) => {
   // Only re-renders when form or isEditMode changes
@@ -844,11 +844,11 @@ const ApplicationDetailsSection = memo(({ form, isEditMode }) => {
 
 // Selective field watching to minimize re-renders
 const watchedFields = form.watch(["rto", "rpo", "applicationHosting"])
-```
+\`\`\`
 
 ### 7.2 Lazy Loading and Code Splitting
 
-```typescript
+\`\`\`typescript
 // Lazy load section components
 const ApplicationDetailsSection = lazy(() => import("./application-details-section"))
 const OrganizationAlignmentSection = lazy(() => import("./organization-alignment-section"))
@@ -857,11 +857,11 @@ const OrganizationAlignmentSection = lazy(() => import("./organization-alignment
 <Suspense fallback={<SectionLoadingSkeleton />}>
   {renderCurrentSection()}
 </Suspense>
-```
+\`\`\`
 
 ### 7.3 Optimistic Updates
 
-```typescript
+\`\`\`typescript
 const useSaveConfiguration = () => {
   const queryClient = useQueryClient()
   
@@ -892,13 +892,13 @@ const useSaveConfiguration = () => {
     },
   })
 }
-```
+\`\`\`
 
 ## 8. Security and Data Integrity
 
 ### 8.1 Input Sanitization
 
-```typescript
+\`\`\`typescript
 // Zod schema provides input sanitization
 const applicationDetailsSchema = z.object({
   applicationName: z.string()
@@ -907,11 +907,11 @@ const applicationDetailsSchema = z.object({
     .max(100, "Too long")
     .regex(/^[a-zA-Z0-9\s\-_()]+$/, "Invalid characters"), // Sanitize input
 })
-```
+\`\`\`
 
 ### 8.2 State Validation
 
-```typescript
+\`\`\`typescript
 // Validate state before persistence
 const handleSave = async (data: FullConfigurationForm) => {
   // Client-side validation
@@ -929,6 +929,6 @@ const handleSave = async (data: FullConfigurationForm) => {
   // Proceed with save
   await saveConfigurationMutation.mutateAsync(validationResult.data)
 }
-```
+\`\`\`
 
 This comprehensive state management and data persistence strategy ensures robust, scalable, and user-friendly configuration management across all panel sections while maintaining data integrity and optimal performance.

@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
+import { useTeams } from "@/lib/hooks/use-teams"
+import { useAPSSupport } from "@/lib/hooks/use-aps-support"
 
 interface OrganizationAlignmentSectionProps {
   form: UseFormReturn<FullConfigurationForm>
@@ -29,6 +31,10 @@ const InfoTooltip = ({ content }: { content: string }) => (
 
 export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationAlignmentSectionProps) {
   const watchedValues = form.watch()
+
+  // Add these hooks at the top for autocomplete data
+  const { data: teamOptions = [], isLoading: teamsLoading } = useTeams()
+  const { data: apsSupportOptions = [], isLoading: apsSupportLoading } = useAPSSupport()
 
   return (
     <div className="space-y-6 lg:space-y-8 xl:space-y-10">
@@ -62,15 +68,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Tech Exec <InfoTooltip content="Technology Executive responsible for the application" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditMode}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,15 +86,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Management Contact <InfoTooltip content="Primary management contact for the application" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditMode}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,15 +104,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Application Manager <InfoTooltip content="Manager responsible for application operations" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditMode}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,25 +132,15 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Portfolio <InfoTooltip content="Portfolio this application belongs to" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select portfolio" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="apac">APAC</SelectItem>
-                      <SelectItem value="emea">EMEA</SelectItem>
-                      <SelectItem value="americas">Americas</SelectItem>
-                      <SelectItem value="global">Global</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    {...field}
+                    disabled={!isEditMode}
+                    className={cn(
+                      "h-9 lg:h-10 xl:h-11",
+                      !isEditMode && "bg-gray-50",
+                      isEditMode && "focus:ring-2 focus:ring-green-500",
+                    )}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -210,17 +182,26 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Team <InfoTooltip content="Team responsible for the application" />
                   </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={!isEditMode}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode || teamsLoading}>
+                    <FormControl>
+                      <SelectTrigger
+                        className={cn(
+                          "h-9 lg:h-10 xl:h-11",
+                          !isEditMode && "bg-gray-50",
+                          isEditMode && "focus:ring-2 focus:ring-green-500",
+                        )}
+                      >
+                        <SelectValue placeholder="Select team" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="platform-engineering">Platform Engineering</SelectItem>
+                      <SelectItem value="application-development">Application Development</SelectItem>
+                      <SelectItem value="infrastructure">Infrastructure</SelectItem>
+                      <SelectItem value="security">Security</SelectItem>
+                      <SelectItem value="data-analytics">Data & Analytics</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -245,28 +226,15 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Organization <InfoTooltip content="Primary organizational unit or division" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select organization" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="gcib">Global Corporate & Investment Banking (GCIB)</SelectItem>
-                      <SelectItem value="gts">Global Transaction Services (GTS)</SelectItem>
-                      <SelectItem value="ccb">Consumer & Community Banking (CCB)</SelectItem>
-                      <SelectItem value="pbwm">Private Bank & Wealth Management (PBWM)</SelectItem>
-                      <SelectItem value="operations">Operations & Technology</SelectItem>
-                      <SelectItem value="risk">Risk Management</SelectItem>
-                      <SelectItem value="compliance">Compliance & Controls</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    {...field}
+                    disabled={!isEditMode}
+                    className={cn(
+                      "h-9 lg:h-10 xl:h-11",
+                      !isEditMode && "bg-gray-50",
+                      isEditMode && "focus:ring-2 focus:ring-green-500",
+                    )}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -282,33 +250,15 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Line of Business <InfoTooltip content="Specific business line or function" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select line of business" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="treasury-payments">Treasury & Trade Solutions</SelectItem>
-                      <SelectItem value="securities-services">Securities & Fund Services</SelectItem>
-                      <SelectItem value="commercial-cards">Commercial Cards</SelectItem>
-                      <SelectItem value="cash-management">Cash Management</SelectItem>
-                      <SelectItem value="trade-finance">Trade Finance</SelectItem>
-                      <SelectItem value="foreign-exchange">Foreign Exchange</SelectItem>
-                      <SelectItem value="lending-services">Lending Services</SelectItem>
-                      <SelectItem value="investment-banking">Investment Banking</SelectItem>
-                      <SelectItem value="markets">Markets & Securities</SelectItem>
-                      <SelectItem value="private-banking">Private Banking</SelectItem>
-                      <SelectItem value="retail-banking">Retail Banking</SelectItem>
-                      <SelectItem value="credit-cards">Credit Cards</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    {...field}
+                    disabled={!isEditMode}
+                    className={cn(
+                      "h-9 lg:h-10 xl:h-11",
+                      !isEditMode && "bg-gray-50",
+                      isEditMode && "focus:ring-2 focus:ring-green-500",
+                    )}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -324,29 +274,9 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Aligning Org <InfoTooltip content="Technology organization alignment" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select aligning organization" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="gcib-gts-tech">GCIB AND GTS TECH</SelectItem>
-                      <SelectItem value="ccb-tech">CCB TECHNOLOGY</SelectItem>
-                      <SelectItem value="pbwm-tech">PBWM TECHNOLOGY</SelectItem>
-                      <SelectItem value="enterprise-tech">ENTERPRISE TECHNOLOGY</SelectItem>
-                      <SelectItem value="infrastructure-tech">INFRASTRUCTURE TECHNOLOGY</SelectItem>
-                      <SelectItem value="cybersecurity-tech">CYBERSECURITY TECHNOLOGY</SelectItem>
-                      <SelectItem value="data-analytics-tech">DATA & ANALYTICS TECHNOLOGY</SelectItem>
-                      <SelectItem value="digital-tech">DIGITAL TECHNOLOGY</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

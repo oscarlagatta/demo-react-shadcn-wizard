@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   ChevronLeft,
@@ -167,9 +167,24 @@ export default function ApplicationConfigurationPanel() {
 
   const handleSave = async (data: FullConfigurationForm) => {
     try {
-      await saveConfigurationMutation.mutateAsync(data)
+      // Only send the editable fields to the server
+      const editableData = {
+        ...configurationData, // Keep existing data
+        region: data.region,
+        portfolio: data.portfolio,
+        team: data.team,
+        organization: data.organization,
+        lineOfBusiness: data.lineOfBusiness,
+        apsSupport: data.apsSupport,
+        apsTechnicalLead: data.apsTechnicalLead,
+        l2SupportGroup: data.l2SupportGroup,
+        bpsSupported: data.bpsSupported,
+        supportModel: data.supportModel,
+      }
+
+      await saveConfigurationMutation.mutateAsync(editableData)
       setIsEditMode(false)
-      form.reset(data) // Reset form state to mark as clean
+      form.reset(editableData) // Reset form state to mark as clean
       toast({
         title: "Success",
         description: "Configuration saved successfully",
