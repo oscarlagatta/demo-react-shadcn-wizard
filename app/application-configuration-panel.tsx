@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils"
 import { ApplicationDetailsSection } from "@/components/configuration/application-details-section"
 import { useConfiguration, useSaveConfiguration } from "@/lib/hooks/use-configuration-data"
 import { fullConfigurationSchema, type FullConfigurationForm } from "@/lib/schemas/configuration"
+import { useGetApplicationByAit } from "@/lib/hooks/use-get-application-by-ait"
 
 import { OrganizationAlignmentSection } from "@/components/configuration/organization-alignment-section"
 import { SupportAlignmentSection } from "@/components/configuration/support-alignment-section"
@@ -72,7 +73,17 @@ export default function ApplicationConfigurationPanel() {
 
   const applicationId = "100" // This would come from props or route params
 
-  const { data: configurationData, isLoading, error } = useConfiguration(applicationId)
+  const {
+    data: applicationData,
+    isLoading: applicationLoading,
+    error: applicationError,
+  } = useGetApplicationByAit(applicationId)
+  const { data: configurationData, isLoading: configLoading, error: configError } = useConfiguration(applicationId)
+
+  // Update the loading and error states
+  const isLoading = applicationLoading || configLoading
+  const error = applicationError || configError
+
   const saveConfigurationMutation = useSaveConfiguration()
 
   const form = useForm<FullConfigurationForm>({
