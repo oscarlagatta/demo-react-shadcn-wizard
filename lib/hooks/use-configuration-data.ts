@@ -125,189 +125,20 @@ export function useGetApplicationByAit(aitNumber: string) {
   })
 }
 
-// Function to map API response to form structure
-export function mapApiResponseToFormData(apiData: any) {
-  if (!apiData) return null
-
-  return {
-    applicationId: apiData.aitNumber?.toString() || "",
-    applicationName: apiData.aitName || "",
-    shortName: apiData.aitShortname || "",
-    region: apiData.regionName ? [mapRegionNameToValue(apiData.regionName)] : [],
-    twoDot: apiData.twoDot || "",
-    twoDotDesc: apiData.twoDotDesc || "",
-    threeDot: apiData.threeDot || "",
-    threeDotDesc: apiData.threeDotDesc || "",
-    description: apiData.aitDescription || "",
-    rto: mapRtoToValue(apiData.rto),
-    rpo: mapRpoToValue(apiData.rpo),
-    rtoApprover: apiData.rtorpoapprover || "",
-    rtoApproveDate: apiData.rtorpoapproverDate ? new Date(apiData.rtorpoapproverDate).toISOString().split("T")[0] : "",
-    usesMainframe: apiData.mainframeflag ? "yes" : ("no" as const),
-    applicationHosting: mapInhouseToHosting(apiData.inhouse),
-    status: apiData.appStatus || "",
-    techExec: apiData.techExec || "",
-    managementContact: apiData.managementContact || "",
-    applicationManager: apiData.applicationManager || "",
-    portfolio: mapPortfolioNameToValue(apiData.apsPortfolioName),
-    portfolioLead: apiData.apsPortfolioTeamLeadName || "",
-    team: mapTeamNameToValue(apiData.apsTeamName),
-    organization: mapOrganizationNameToValue(apiData.organisationName),
-    lineOfBusiness: apiData.loBName ? mapLobNameToValue(apiData.loBName) : "",
-    aligningOrg: mapAligningOrgToValue(apiData.aligningOrg),
-    apsSupport: apiData.apsSupportContact || "",
-    apsTechnicalLead: apiData.apsTechnicalLeadName || "",
-    l2SupportGroup: apiData.l2SupportGroup || "",
-    l2SupportContact: apiData.secondLevelProductionSupportLoginName || "",
-    supportContact: apiData.apsSupportContact || "",
-    supportContactEmail: apiData.appSupportDg || "",
-    bpsSupported: apiData.bpssupported ? "yes" : ("no" as const),
-    supportModel: mapSupportModelToValue(apiData.supportModelName),
-    escalationPath: `L1 → L2 Support Group → APS Support Manager → APS Technical Lead`,
-    supportRegion: mapRegionNameToValue(apiData.regionName),
-    supportTimezone: mapRegionToTimezone(apiData.regionName),
-    updatedBy: apiData.updatedusername || "",
-    updatedDate: apiData.updateddate ? new Date(apiData.updateddate).toLocaleString() : "",
-    lastAttestedDate: apiData.attestationDueDate ? new Date(apiData.attestationDueDate).toLocaleString() : "",
-    attestedBy: apiData.attestationUsername || "",
-    nextDueAttestedDate: apiData.nextAttestationDueDate
-      ? new Date(apiData.nextAttestationDueDate).toLocaleString()
-      : "",
-    createdBy: apiData.createdusername || "",
-    createdDate: apiData.createddate ? new Date(apiData.createddate).toLocaleString() : "",
-    version: "v2.1.3", // This might need to come from another source
-  }
-}
-
-// Helper mapping functions
-function mapRegionNameToValue(regionName: string): string {
-  const regionMap: Record<string, string> = {
-    AMRS: "americas",
-    APAC: "apac-latam",
-    EMEA: "emea",
-    GLOBAL: "global",
-  }
-  return regionMap[regionName] || "americas"
-}
-
-function mapRtoToValue(rto: string): string {
-  if (rto?.includes("Immediate")) return "tier-1-immediate"
-  if (rto?.includes("15 minutes to 2 hours")) return "tier-2-15min-2hr"
-  if (rto?.includes("2 hours to 8 hours")) return "tier-3-2hr-8hr"
-  if (rto?.includes("8 hours to 24 hours")) return "tier-4-8hr-24hr"
-  if (rto?.includes("24 hour")) return "tier-5-24-48"
-  return "tier-5-24-48"
-}
-
-function mapRpoToValue(rpo: string): string {
-  if (rpo?.includes("No data loss")) return "tier-1-no-loss"
-  if (rpo?.includes("15 minutes")) return "tier-2-15min"
-  if (rpo?.includes("1 hour")) return "tier-3-1hr"
-  if (rpo?.includes("4 hours")) return "tier-4-4hr"
-  if (rpo?.includes("Daily backup")) return "tier-5-daily-backup"
-  return "tier-5-daily-backup"
-}
-
-function mapInhouseToHosting(
-  inhouse: string,
-): "in-house" | "cloud-public" | "cloud-private" | "hybrid" | "third-party" {
-  if (inhouse?.includes("External")) return "third-party"
-  if (inhouse?.includes("Cloud")) return "cloud-public"
-  return "in-house"
-}
-
-function mapPortfolioNameToValue(portfolioName: string): string {
-  if (portfolioName?.includes("Global")) return "global"
-  if (portfolioName?.includes("APAC")) return "apac"
-  if (portfolioName?.includes("EMEA")) return "emea"
-  if (portfolioName?.includes("Americas")) return "americas"
-  return "global"
-}
-
-function mapTeamNameToValue(teamName: string): string {
-  const teamMap: Record<string, string> = {
-    "Name Services": "platform-engineering",
-    "Application Development": "application-development",
-    "Data Engineering": "data-engineering",
-    Infrastructure: "infrastructure",
-    Security: "security",
-    DevOps: "devops",
-  }
-  return teamMap[teamName] || "platform-engineering"
-}
-
-function mapOrganizationNameToValue(orgName: string): string {
-  if (orgName?.includes("Global Banking")) return "gcib"
-  if (orgName?.includes("Transaction")) return "gts"
-  if (orgName?.includes("Consumer")) return "ccb"
-  if (orgName?.includes("Private")) return "pbwm"
-  if (orgName?.includes("Operations")) return "operations"
-  if (orgName?.includes("Risk")) return "risk"
-  if (orgName?.includes("Compliance")) return "compliance"
-  return "gcib"
-}
-
-function mapLobNameToValue(lobName: string): string {
-  const lobMap: Record<string, string> = {
-    Treasury: "treasury-payments",
-    Securities: "securities-services",
-    "Commercial Cards": "commercial-cards",
-    "Cash Management": "cash-management",
-    "Trade Finance": "trade-finance",
-    "Foreign Exchange": "foreign-exchange",
-    Lending: "lending-services",
-    "Investment Banking": "investment-banking",
-    Markets: "markets",
-    "Private Banking": "private-banking",
-    "Retail Banking": "retail-banking",
-    "Credit Cards": "credit-cards",
-  }
-  return lobMap[lobName] || "treasury-payments"
-}
-
-function mapAligningOrgToValue(aligningOrg: string): string {
-  if (aligningOrg?.includes("GCIB AND GTS")) return "gcib-gts-tech"
-  if (aligningOrg?.includes("CCB")) return "ccb-tech"
-  if (aligningOrg?.includes("PBWM")) return "pbwm-tech"
-  if (aligningOrg?.includes("ENTERPRISE")) return "enterprise-tech"
-  if (aligningOrg?.includes("INFRASTRUCTURE")) return "infrastructure-tech"
-  if (aligningOrg?.includes("CYBERSECURITY")) return "cybersecurity-tech"
-  if (aligningOrg?.includes("DATA")) return "data-analytics-tech"
-  if (aligningOrg?.includes("DIGITAL")) return "digital-tech"
-  return "gcib-gts-tech"
-}
-
-function mapSupportModelToValue(supportModel: string): string {
-  if (supportModel?.includes("BPS - 24x7")) return "bps-24x7"
-  if (supportModel?.includes("BPS") && supportModel?.includes("365")) return "bps-24x7"
-  if (supportModel?.includes("BPS")) return "bps-business-hours"
-  if (supportModel?.includes("Standard - 24x7")) return "standard-24x7"
-  if (supportModel?.includes("Standard")) return "standard-business-hours"
-  return "on-demand"
-}
-
-function mapRegionToTimezone(regionName: string): string {
-  const timezoneMap: Record<string, string> = {
-    AMRS: "americas",
-    APAC: "asia-pacific",
-    EMEA: "europe-africa",
-    GLOBAL: "global",
-  }
-  return timezoneMap[regionName] || "americas"
-}
-
-// Enhanced configuration hook that uses the application data
+// Simplified configuration hook that directly uses the application data
 export const useConfiguration = (aitNumber: string) => {
-  const applicationQuery = useGetApplicationByAit(aitNumber)
+  return useGetApplicationByAit(aitNumber)
+}
 
-  return useQuery({
-    queryKey: ["configuration", aitNumber],
-    queryFn: () => {
-      const mappedData = mapApiResponseToFormData(applicationQuery.data)
-      return mappedData
+export const useSaveConfiguration = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: saveConfiguration,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["configuration"] })
+      queryClient.invalidateQueries({ queryKey: ["application"] })
     },
-    enabled: !!applicationQuery.data && !!aitNumber,
-    select: (data) => data,
   })
 }
 
@@ -344,59 +175,54 @@ export const useRtoRpoApprovers = () => {
   })
 }
 
-export const useSaveConfiguration = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: saveConfiguration,
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["configuration"] })
-      queryClient.invalidateQueries({ queryKey: ["application"] })
-    },
-  })
-}
-
 // Mock API functions - replace with actual API calls
 const fetchRegions = async () => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
-    { value: "apac-latam", label: "APAC, LATAM" },
-    { value: "emea", label: "EMEA" },
-    { value: "americas", label: "Americas" },
-    { value: "global", label: "Global" },
+    { value: "AMRS", label: "Americas" },
+    { value: "APAC", label: "APAC" },
+    { value: "EMEA", label: "EMEA" },
+    { value: "GLOBAL", label: "Global" },
   ]
 }
 
 const fetchRtoOptions = async () => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
-    { value: "tier-1-immediate", label: "Tier 1: Immediate (0-15 minutes)" },
-    { value: "tier-2-15min-2hr", label: "Tier 2: 15 minutes to 2 hours" },
-    { value: "tier-3-2hr-8hr", label: "Tier 3: 2 hours to 8 hours" },
-    { value: "tier-4-8hr-24hr", label: "Tier 4: 8 hours to 24 hours" },
-    { value: "tier-5-24-48", label: "Tier 5: Greater than 24 hours, up to 48 hours" },
+    { value: "Tier 1: Immediate (0-15 minutes)", label: "Tier 1: Immediate (0-15 minutes)" },
+    { value: "Tier 2: 15 minutes to 2 hours", label: "Tier 2: 15 minutes to 2 hours" },
+    { value: "Tier 3: 2 hours to 8 hours", label: "Tier 3: 2 hours to 8 hours" },
+    { value: "Tier 4: 8 hours to 24 hours", label: "Tier 4: 8 hours to 24 hours" },
+    {
+      value: "Tier 5: Greater than 24 hour, up to and including 48 hours",
+      label: "Tier 5: Greater than 24 hours, up to 48 hours",
+    },
   ]
 }
 
 const fetchRpoOptions = async () => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
-    { value: "tier-1-no-loss", label: "Tier 1: No data loss (Real-time replication)" },
-    { value: "tier-2-15min", label: "Tier 2: Up to 15 minutes data loss" },
-    { value: "tier-3-1hr", label: "Tier 3: Up to 1 hour data loss" },
-    { value: "tier-4-4hr", label: "Tier 4: Up to 4 hours data loss" },
-    { value: "tier-5-daily-backup", label: "Tier 5: Daily backup (4-24 hours data loss)" },
+    { value: "Tier 1: No data loss (Real-time replication)", label: "Tier 1: No data loss (Real-time replication)" },
+    { value: "Tier 2: Up to 15 minutes data loss", label: "Tier 2: Up to 15 minutes data loss" },
+    { value: "Tier 3: Up to 1 hour data loss", label: "Tier 3: Up to 1 hour data loss" },
+    { value: "Tier 4: Up to 4 hours data loss", label: "Tier 4: Up to 4 hours data loss" },
+    {
+      value: "Tier 5: Daily backup: Greater than 4 hours, up to and including 24 hours",
+      label: "Tier 5: Daily backup (4-24 hours data loss)",
+    },
   ]
 }
 
 const fetchRtoRpoApprovers = async () => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
-    { value: "rodriguez-maria", label: "Rodriguez, Maria C." },
-    { value: "thompson-sarah", label: "Thompson, Sarah K." },
-    { value: "chen-michael", label: "Chen, Michael R." },
-    { value: "williams-jennifer", label: "Williams, Jennifer L." },
-    { value: "anderson-david", label: "Anderson, David M." },
+    { value: "Rodriguez, Maria C.", label: "Rodriguez, Maria C." },
+    { value: "Thompson, Sarah K.", label: "Thompson, Sarah K." },
+    { value: "Chen, Michael R.", label: "Chen, Michael R." },
+    { value: "Williams, Jennifer L.", label: "Williams, Jennifer L." },
+    { value: "Anderson, David M.", label: "Anderson, David M." },
+    { value: "Signorini, John", label: "Signorini, John" },
   ]
 }
 

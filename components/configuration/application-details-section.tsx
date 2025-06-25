@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { MultiSelect } from "@/components/ui/multi-select"
 import { useRegions, useRto, useRpo, useRtoRpoApprovers } from "@/lib/hooks/use-configuration-data"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
 import { cn } from "@/lib/utils"
@@ -38,24 +37,12 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
   const { data: rpoOptions = [], isLoading: rpoLoading } = useRpo()
   const { data: approvers = [], isLoading: approversLoading } = useRtoRpoApprovers()
 
-  // Helper functions for display values
-  const getRTODisplayValue = (value: string) => {
-    const option = rtoOptions.find((opt) => opt.value === value)
-    return option?.label || value
-  }
-
-  const getRPODisplayValue = (value: string) => {
-    const option = rpoOptions.find((opt) => opt.value === value)
-    return option?.label || value
-  }
-
   const getHostingDisplayValue = (value: string) => {
     const hostingOptions: Record<string, string> = {
-      "in-house": "In-house (Hosted entirely inside the bank network)",
-      "cloud-public": "Public Cloud (AWS, Azure, GCP)",
-      "cloud-private": "Private Cloud",
-      hybrid: "Hybrid (Mix of on-premise and cloud)",
-      "third-party": "Third-party hosted",
+      "In-house (Hosted entirely inside the bank network)": "In-house (Hosted entirely inside the bank network)",
+      "External (Hosted entirely outside the bank network)": "External (Hosted entirely outside the bank network)",
+      "Cloud (AWS, Azure, GCP)": "Cloud (AWS, Azure, GCP)",
+      "Hybrid (Mix of on-premise and cloud)": "Hybrid (Mix of on-premise and cloud)",
     }
     return hostingOptions[value] || value
   }
@@ -84,14 +71,19 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
           <FormField
             control={form.control}
-            name="applicationId"
+            name="aitNumber"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Application ID <InfoTooltip content="Unique identifier for the application" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" readOnly={true} />
+                  <Input
+                    {...field}
+                    value={field.value?.toString() || ""}
+                    readOnly
+                    className="bg-gray-50 h-9 lg:h-10 xl:h-11"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -100,7 +92,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="applicationName"
+            name="aitName"
             render={({ field }) => (
               <FormItem className="space-y-2 2xl:col-span-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -116,7 +108,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="shortName"
+            name="aitShortname"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -137,25 +129,32 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="region"
+            name="regionName"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
-                  Region <InfoTooltip content="Geographic regions where the application operates" />
+                  Region <InfoTooltip content="Geographic region where the application operates" />
                 </FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={regions}
-                    selected={field.value}
-                    onChange={field.onChange}
-                    placeholder="Select regions..."
-                    disabled={!isEditMode || regionsLoading}
-                    className={cn(
-                      !isEditMode && "[&>button]:bg-gray-50",
-                      isEditMode && "[&>button]:focus:ring-2 [&>button]:focus:ring-blue-500",
-                    )}
-                  />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode || regionsLoading}>
+                  <FormControl>
+                    <SelectTrigger
+                      className={cn(
+                        "h-9 lg:h-10 xl:h-11",
+                        !isEditMode && "bg-gray-50",
+                        isEditMode && "focus:ring-2 focus:ring-blue-500",
+                      )}
+                    >
+                      <SelectValue placeholder="Select region" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {regions.map((region) => (
+                      <SelectItem key={region.value} value={region.value}>
+                        {region.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -163,7 +162,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="status"
+            name="appStatus"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -255,7 +254,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
         <FormField
           control={form.control}
-          name="description"
+          name="aitDescription"
           render={({ field }) => (
             <FormItem className="space-y-2">
               <FormLabel className="flex items-center text-sm lg:text-base">
@@ -339,7 +338,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="rtoApprover"
+            name="rtorpoapprover"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -366,7 +365,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="rtoApproveDate"
+            name="rtorpoapproverDate"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -374,7 +373,13 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Input {...field} type="date" disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                    <Input
+                      {...field}
+                      value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
+                      type="date"
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
                     <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   </div>
                 </FormControl>
@@ -396,24 +401,19 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6">
           <FormField
             control={form.control}
-            name="usesMainframe"
+            name="mainframeflag"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Uses Mainframe <InfoTooltip content="Whether the application uses mainframe technology" />
                 </FormLabel>
-                <Select onValueChange={field.onChange} value={field.value} disabled={true}>
-                  <FormControl>
-                    <SelectTrigger className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
-                    <SelectItem value="partial">Partial (Some components)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <div className="flex items-center h-9 lg:h-10 xl:h-11">
+                    <Badge variant="secondary" className="text-xs lg:text-sm">
+                      {field.value ? "Yes" : "No"}
+                    </Badge>
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -421,26 +421,19 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
 
           <FormField
             control={form.control}
-            name="applicationHosting"
+            name="inhouse"
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Application Hosting <InfoTooltip content="Where and how the application is hosted" />
                 </FormLabel>
-                <Select onValueChange={field.onChange} value={field.value} disabled={true}>
-                  <FormControl>
-                    <SelectTrigger className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="in-house">In-house (Bank network)</SelectItem>
-                    <SelectItem value="cloud-public">Public Cloud</SelectItem>
-                    <SelectItem value="cloud-private">Private Cloud</SelectItem>
-                    <SelectItem value="hybrid">Hybrid</SelectItem>
-                    <SelectItem value="third-party">Third-party hosted</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <div className="flex items-center h-9 lg:h-10 xl:h-11">
+                    <span className="text-sm lg:text-base text-gray-700 break-words">
+                      {getHostingDisplayValue(field.value)}
+                    </span>
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -454,23 +447,19 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 text-xs lg:text-sm">
           <div>
             <span className="font-medium text-blue-700">RTO:</span>{" "}
-            <span className="text-blue-600 break-words">{getRTODisplayValue(form.watch("rto"))}</span>
+            <span className="text-blue-600 break-words">{form.watch("rto")}</span>
           </div>
           <div>
             <span className="font-medium text-blue-700">RPO:</span>{" "}
-            <span className="text-blue-600 break-words">{getRPODisplayValue(form.watch("rpo"))}</span>
+            <span className="text-blue-600 break-words">{form.watch("rpo")}</span>
           </div>
           <div>
             <span className="font-medium text-blue-700">Hosting:</span>{" "}
-            <span className="text-blue-600 break-words">
-              {getHostingDisplayValue(form.watch("applicationHosting"))}
-            </span>
+            <span className="text-blue-600 break-words">{getHostingDisplayValue(form.watch("inhouse"))}</span>
           </div>
           <div>
             <span className="font-medium text-blue-700">Mainframe:</span>{" "}
-            <span className="text-blue-600">
-              {form.watch("usesMainframe") === "yes" ? "Yes" : form.watch("usesMainframe") === "no" ? "No" : "Partial"}
-            </span>
+            <span className="text-blue-600">{form.watch("mainframeflag") ? "Yes" : "No"}</span>
           </div>
         </div>
       </div>

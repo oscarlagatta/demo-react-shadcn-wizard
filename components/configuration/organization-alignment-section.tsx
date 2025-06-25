@@ -62,15 +62,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Tech Exec <InfoTooltip content="Technology Executive responsible for the application" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,15 +80,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Management Contact <InfoTooltip content="Primary management contact for the application" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,15 +98,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Application Manager <InfoTooltip content="Manager responsible for application operations" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -144,7 +120,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="portfolio"
+              name="apsPortfolioName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
@@ -163,10 +139,10 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="apac">APAC</SelectItem>
-                      <SelectItem value="emea">EMEA</SelectItem>
-                      <SelectItem value="americas">Americas</SelectItem>
-                      <SelectItem value="global">Global</SelectItem>
+                      <SelectItem value="Global Payments">Global Payments</SelectItem>
+                      <SelectItem value="APAC Portfolio">APAC Portfolio</SelectItem>
+                      <SelectItem value="EMEA Portfolio">EMEA Portfolio</SelectItem>
+                      <SelectItem value="Americas Portfolio">Americas Portfolio</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -178,22 +154,14 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="portfolioLead"
+              name="apsPortfolioTeamLeadName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Portfolio Lead <InfoTooltip content="Lead person for the portfolio" />
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                      className={cn(
-                        "h-9 lg:h-10 xl:h-11",
-                        !isEditMode && "bg-gray-50",
-                        isEditMode && "focus:ring-2 focus:ring-green-500",
-                      )}
-                    />
+                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -204,7 +172,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="team"
+              name="apsTeamName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
@@ -223,12 +191,13 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="platform-engineering">Platform Engineering</SelectItem>
-                      <SelectItem value="application-development">Application Development</SelectItem>
-                      <SelectItem value="data-engineering">Data Engineering</SelectItem>
-                      <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                      <SelectItem value="security">Security</SelectItem>
-                      <SelectItem value="devops">DevOps</SelectItem>
+                      <SelectItem value="Name Services">Name Services</SelectItem>
+                      <SelectItem value="Platform Engineering">Platform Engineering</SelectItem>
+                      <SelectItem value="Application Development">Application Development</SelectItem>
+                      <SelectItem value="Data Engineering">Data Engineering</SelectItem>
+                      <SelectItem value="Infrastructure">Infrastructure</SelectItem>
+                      <SelectItem value="Security">Security</SelectItem>
+                      <SelectItem value="DevOps">DevOps</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -249,7 +218,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="organization"
+              name="organisationName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
@@ -268,13 +237,22 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="gcib">Global Corporate & Investment Banking (GCIB)</SelectItem>
-                      <SelectItem value="gts">Global Transaction Services (GTS)</SelectItem>
-                      <SelectItem value="ccb">Consumer & Community Banking (CCB)</SelectItem>
-                      <SelectItem value="pbwm">Private Bank & Wealth Management (PBWM)</SelectItem>
-                      <SelectItem value="operations">Operations & Technology</SelectItem>
-                      <SelectItem value="risk">Risk Management</SelectItem>
-                      <SelectItem value="compliance">Compliance & Controls</SelectItem>
+                      <SelectItem value="Global Banking Technology">Global Banking Technology</SelectItem>
+                      <SelectItem value="Global Corporate & Investment Banking (GCIB)">
+                        Global Corporate & Investment Banking (GCIB)
+                      </SelectItem>
+                      <SelectItem value="Global Transaction Services (GTS)">
+                        Global Transaction Services (GTS)
+                      </SelectItem>
+                      <SelectItem value="Consumer & Community Banking (CCB)">
+                        Consumer & Community Banking (CCB)
+                      </SelectItem>
+                      <SelectItem value="Private Bank & Wealth Management (PBWM)">
+                        Private Bank & Wealth Management (PBWM)
+                      </SelectItem>
+                      <SelectItem value="Operations & Technology">Operations & Technology</SelectItem>
+                      <SelectItem value="Risk Management">Risk Management</SelectItem>
+                      <SelectItem value="Compliance & Controls">Compliance & Controls</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -286,13 +264,13 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="lineOfBusiness"
+              name="loBName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Line of Business <InfoTooltip content="Specific business line or function" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                  <Select onValueChange={field.onChange} value={field.value || ""} disabled={!isEditMode}>
                     <FormControl>
                       <SelectTrigger
                         className={cn(
@@ -305,18 +283,18 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="treasury-payments">Treasury & Trade Solutions</SelectItem>
-                      <SelectItem value="securities-services">Securities & Fund Services</SelectItem>
-                      <SelectItem value="commercial-cards">Commercial Cards</SelectItem>
-                      <SelectItem value="cash-management">Cash Management</SelectItem>
-                      <SelectItem value="trade-finance">Trade Finance</SelectItem>
-                      <SelectItem value="foreign-exchange">Foreign Exchange</SelectItem>
-                      <SelectItem value="lending-services">Lending Services</SelectItem>
-                      <SelectItem value="investment-banking">Investment Banking</SelectItem>
-                      <SelectItem value="markets">Markets & Securities</SelectItem>
-                      <SelectItem value="private-banking">Private Banking</SelectItem>
-                      <SelectItem value="retail-banking">Retail Banking</SelectItem>
-                      <SelectItem value="credit-cards">Credit Cards</SelectItem>
+                      <SelectItem value="Treasury & Trade Solutions">Treasury & Trade Solutions</SelectItem>
+                      <SelectItem value="Securities & Fund Services">Securities & Fund Services</SelectItem>
+                      <SelectItem value="Commercial Cards">Commercial Cards</SelectItem>
+                      <SelectItem value="Cash Management">Cash Management</SelectItem>
+                      <SelectItem value="Trade Finance">Trade Finance</SelectItem>
+                      <SelectItem value="Foreign Exchange">Foreign Exchange</SelectItem>
+                      <SelectItem value="Lending Services">Lending Services</SelectItem>
+                      <SelectItem value="Investment Banking">Investment Banking</SelectItem>
+                      <SelectItem value="Markets & Securities">Markets & Securities</SelectItem>
+                      <SelectItem value="Private Banking">Private Banking</SelectItem>
+                      <SelectItem value="Retail Banking">Retail Banking</SelectItem>
+                      <SelectItem value="Credit Cards">Credit Cards</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -334,29 +312,11 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Aligning Org <InfoTooltip content="Technology organization alignment" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={true}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select aligning organization" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="gcib-gts-tech">GCIB AND GTS TECH</SelectItem>
-                      <SelectItem value="ccb-tech">CCB TECHNOLOGY</SelectItem>
-                      <SelectItem value="pbwm-tech">PBWM TECHNOLOGY</SelectItem>
-                      <SelectItem value="enterprise-tech">ENTERPRISE TECHNOLOGY</SelectItem>
-                      <SelectItem value="infrastructure-tech">INFRASTRUCTURE TECHNOLOGY</SelectItem>
-                      <SelectItem value="cybersecurity-tech">CYBERSECURITY TECHNOLOGY</SelectItem>
-                      <SelectItem value="data-analytics-tech">DATA & ANALYTICS TECHNOLOGY</SelectItem>
-                      <SelectItem value="digital-tech">DIGITAL TECHNOLOGY</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <div className="flex items-center h-9 lg:h-10 xl:h-11">
+                      <span className="text-sm lg:text-base text-gray-700 break-words">{field.value}</span>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -371,42 +331,19 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 text-xs lg:text-sm">
           <div>
             <span className="font-medium text-green-700">Primary Organization:</span>{" "}
-            <span className="text-green-600 break-words">
-              {watchedValues.organization
-                ? watchedValues.organization
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : "Not selected"}
-            </span>
+            <span className="text-green-600 break-words">{watchedValues.organisationName || "Not selected"}</span>
           </div>
           <div>
             <span className="font-medium text-green-700">Line of Business:</span>{" "}
-            <span className="text-green-600 break-words">
-              {watchedValues.lineOfBusiness
-                ? watchedValues.lineOfBusiness
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : "Not selected"}
-            </span>
+            <span className="text-green-600 break-words">{watchedValues.loBName || "Not selected"}</span>
           </div>
           <div>
             <span className="font-medium text-green-700">Tech Alignment:</span>{" "}
-            <span className="text-green-600 break-words">
-              {watchedValues.aligningOrg
-                ? watchedValues.aligningOrg
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : "Not selected"}
-            </span>
+            <span className="text-green-600 break-words">{watchedValues.aligningOrg || "Not selected"}</span>
           </div>
           <div>
             <span className="font-medium text-green-700">Portfolio:</span>{" "}
-            <span className="text-green-600">
-              {watchedValues.portfolio ? watchedValues.portfolio.toUpperCase() : "Not selected"}
-            </span>
+            <span className="text-green-600">{watchedValues.apsPortfolioName || "Not selected"}</span>
           </div>
         </div>
 

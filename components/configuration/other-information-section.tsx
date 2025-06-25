@@ -45,7 +45,7 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="updatedBy"
+            name="updatedusername"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -62,14 +62,19 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="updatedDate"
+            name="updateddate"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Updated Date <InfoTooltip content="Date when this record was last updated" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input
+                    {...field}
+                    value={field.value ? new Date(field.value).toLocaleString() : ""}
+                    readOnly
+                    className="bg-gray-50 h-9 lg:h-10 xl:h-11"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -79,14 +84,19 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="lastAttestedDate"
+            name="attestationDueDate"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Last Attested Date <InfoTooltip content="Date when this record was last attested" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input
+                    {...field}
+                    value={field.value ? new Date(field.value).toLocaleString() : ""}
+                    readOnly
+                    className="bg-gray-50 h-9 lg:h-10 xl:h-11"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -96,7 +106,7 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="attestedBy"
+            name="attestationUsername"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center text-sm lg:text-base">
@@ -113,14 +123,19 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="nextDueAttestedDate"
+            name="nextAttestationDueDate"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Next Due Attested Date <InfoTooltip content="Next date when attestation is due" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input
+                    {...field}
+                    value={field.value ? new Date(field.value).toLocaleString() : ""}
+                    readOnly
+                    className="bg-gray-50 h-9 lg:h-10 xl:h-11"
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -130,14 +145,19 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
         <div className="space-y-2">
           <FormField
             control={form.control}
-            name="version"
+            name="id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center text-sm lg:text-base">
                   Version <InfoTooltip content="Current version of the application record" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input
+                    {...field}
+                    value={field.value?.toString() || ""}
+                    readOnly
+                    className="bg-gray-50 h-9 lg:h-10 xl:h-11"
+                  />
                 </FormControl>
               </FormItem>
             )}
