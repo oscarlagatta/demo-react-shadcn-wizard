@@ -65,6 +65,52 @@ const configurationSections = [
   },
 ]
 
+// Add this helper function before the component
+const transformApiDataForForm = (data: any): FullConfigurationForm => {
+  return {
+    aitNumber: data?.aitNumber || 0,
+    aitName: data?.aitName || "",
+    aitShortname: data?.aitShortname || "",
+    regionName: data?.regionName || "",
+    twoDot: data?.twoDot || "",
+    twoDotDesc: data?.twoDotDesc || "",
+    threeDot: data?.threeDot || "",
+    threeDotDesc: data?.threeDotDesc || "",
+    aitDescription: data?.aitDescription || "",
+    rto: data?.rto || "",
+    rpo: data?.rpo || "",
+    rtorpoapprover: data?.rtorpoapprover || "",
+    rtorpoapproverDate: data?.rtorpoapproverDate || "",
+    mainframeflag: data?.mainframeflag || false,
+    inhouse: data?.inhouse || "",
+    appStatus: data?.appStatus || "",
+    techExec: data?.techExec || "",
+    managementContact: data?.managementContact || "",
+    applicationManager: data?.applicationManager || "",
+    apsPortfolioName: data?.apsPortfolioName || "",
+    apsPortfolioTeamLeadName: data?.apsPortfolioTeamLeadName || "",
+    apsTeamName: data?.apsTeamName || "",
+    organisationName: data?.organisationName || "",
+    loBName: data?.loBName || "",
+    aligningOrg: data?.aligningOrg || "",
+    apsSupportContact: data?.apsSupportContact || "",
+    apsTechnicalLeadName: data?.apsTechnicalLeadName || "",
+    l2SupportGroup: data?.l2SupportGroup || "",
+    secondLevelProductionSupportLoginName: data?.secondLevelProductionSupportLoginName || "",
+    appSupportDg: data?.appSupportDg || "",
+    bpssupported: data?.bpssupported || false,
+    supportModelName: data?.supportModelName || "",
+    updatedusername: data?.updatedusername || "",
+    updateddate: data?.updateddate || "",
+    attestationDueDate: data?.attestationDueDate || "",
+    attestationUsername: data?.attestationUsername || "",
+    nextAttestationDueDate: data?.nextAttestationDueDate || "",
+    createdusername: data?.createdusername || "",
+    createddate: data?.createddate || "",
+    id: data?.id || 0,
+  }
+}
+
 export default function ApplicationConfigurationPanel() {
   const [currentSection, setCurrentSection] = useState(0)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -123,9 +169,11 @@ export default function ApplicationConfigurationPanel() {
   })
 
   // Load configuration data into form
+  // Update the useEffect to use the transformation function
   useEffect(() => {
     if (configurationData) {
-      form.reset(configurationData)
+      const transformedData = transformApiDataForForm(configurationData)
+      form.reset(transformedData)
     }
   }, [configurationData, form])
 

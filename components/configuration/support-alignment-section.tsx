@@ -135,6 +135,7 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value || ""}
                       disabled={!isEditMode}
                       className={cn(
                         "h-9 lg:h-10 xl:h-11",
@@ -172,6 +173,7 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                       <Input
                         {...field}
                         type="email"
+                        value={field.value || ""}
                         disabled={true}
                         className={cn("pl-9 lg:pl-10 h-9 lg:h-10 xl:h-11", "bg-gray-50")}
                       />
@@ -195,7 +197,12 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                     <InfoTooltip content="Level 2 support contact person for technical escalations" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

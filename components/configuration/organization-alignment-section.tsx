@@ -62,7 +62,12 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Tech Exec <InfoTooltip content="Technology Executive responsible for the application" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -80,7 +85,12 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Management Contact <InfoTooltip content="Primary management contact for the application" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +108,12 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Application Manager <InfoTooltip content="Manager responsible for application operations" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,7 +176,12 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Portfolio Lead <InfoTooltip content="Lead person for the portfolio" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -52,7 +52,7 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
                   Updated By <InfoTooltip content="Person who last updated this record" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input {...field} value={field.value || ""} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
                 </FormControl>
               </FormItem>
             )}
@@ -113,7 +113,7 @@ export function OtherInformationSection({ form, isEditMode }: OtherInformationSe
                   Attested By <InfoTooltip content="Person who last attested this record" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
+                  <Input {...field} value={field.value || ""} readOnly className="bg-gray-50 h-9 lg:h-10 xl:h-11" />
                 </FormControl>
               </FormItem>
             )}

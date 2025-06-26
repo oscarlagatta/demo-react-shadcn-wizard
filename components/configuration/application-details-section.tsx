@@ -99,7 +99,12 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                   Application Name <InfoTooltip content="Full name of the application" />
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} disabled={true} className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")} />
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    disabled={true}
+                    className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -117,6 +122,7 @@ export function ApplicationDetailsSection({ form, isEditMode }: ApplicationDetai
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value || ""}
                     disabled={true}
                     maxLength={10}
                     className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
