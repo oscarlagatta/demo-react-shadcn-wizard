@@ -29,6 +29,33 @@ const InfoTooltip = ({ content }: { content: string }) => (
   </TooltipProvider>
 )
 
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center py-6">
+    <div className="flex items-center space-x-2 text-gray-500">
+      <Loader2 className="h-4 w-4 animate-spin" />
+      <span className="text-sm">Loading teams...</span>
+    </div>
+  </div>
+)
+
+const EmptyTeamsMessage = ({ portfolioName }: { portfolioName: string }) => (
+  <div className="flex items-center justify-center py-6">
+    <div className="text-center text-gray-500">
+      <div className="text-sm font-medium">No teams available</div>
+      <div className="text-xs mt-1">No teams found for {portfolioName}</div>
+    </div>
+  </div>
+)
+
+const SelectPortfolioMessage = () => (
+  <div className="flex items-center justify-center py-6">
+    <div className="text-center text-gray-500">
+      <div className="text-sm font-medium">Select a portfolio first</div>
+      <div className="text-xs mt-1">Teams will be filtered based on your portfolio selection</div>
+    </div>
+  </div>
+)
+
 export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationAlignmentSectionProps) {
   const watchedValues = form.watch()
   const selectedPortfolio = form.watch("apsPortfolioName")
@@ -239,25 +266,51 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                                   : "Select team"
                           }
                         />
-                        {teamsLoading && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {filteredTeams.length === 0 && selectedPortfolio && !teamsLoading ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">No teams available for this portfolio</div>
+                    <SelectContent className="max-h-[200px]">
+                      {!selectedPortfolio ? (
+                        <SelectPortfolioMessage />
+                      ) : teamsLoading ? (
+                        <LoadingSpinner />
+                      ) : filteredTeams.length === 0 ? (
+                        <EmptyTeamsMessage portfolioName={selectedPortfolio} />
                       ) : (
-                        filteredTeams.map((team) => (
-                          <SelectItem key={team.value} value={team.value}>
-                            {team.label}
-                          </SelectItem>
-                        ))
+                        <>
+                          {/* Header showing portfolio context */}
+                          <div className="px-2 py-1.5 text-xs font-medium text-gray-500 border-b bg-gray-50">
+                            Teams for {selectedPortfolio} ({filteredTeams.length})
+                          </div>
+                          {filteredTeams.map((team) => (
+                            <SelectItem
+                              key={team.value}
+                              value={team.value}
+                              className="cursor-pointer hover:bg-green-50 focus:bg-green-50"
+                            >
+                              <div className="flex items-center justify-between w-full">
+                                <span>{team.label}</span>
+                                {selectedTeam === team.value && (
+                                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </>
                       )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                  {isEditMode && selectedPortfolio && (
+                  {isEditMode && selectedPortfolio && !teamsLoading && (
                     <p className="text-xs text-gray-500 mt-1">
-                      Showing teams for {selectedPortfolio} ({filteredTeams.length} available)
+                      {filteredTeams.length > 0
+                        ? `${filteredTeams.length} team${filteredTeams.length === 1 ? "" : "s"} available for ${selectedPortfolio}`
+                        : `No teams configured for ${selectedPortfolio}`}
+                    </p>
+                  )}
+                  {isEditMode && teamsLoading && (
+                    <p className="text-xs text-blue-500 mt-1 flex items-center">
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                      Filtering teams for {selectedPortfolio}...
                     </p>
                   )}
                 </FormItem>
@@ -387,7 +440,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
       </div>
 
       {/* Portfolio-Team Relationship Info */}
-      {isEditMode && selectedPortfolio && (
+      {isEditMode && selectedPortfolio && !teamsLoading && (
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <h5 className="text-blue-800 font-medium mb-2 text-sm">Portfolio Team Information</h5>
           <p className="text-blue-700 text-xs mb-2">
@@ -398,14 +451,35 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
               <span
                 key={team}
                 className={cn(
-                  "px-2 py-1 text-xs rounded-full",
-                  selectedTeam === team ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-700",
+                  "px-2 py-1 text-xs rounded-full transition-colors",
+                  selectedTeam === team
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-blue-100 text-blue-700 hover:bg-blue-200",
                 )}
               >
                 {team}
+                {selectedTeam === team && <span className="ml-1">✓</span>}
               </span>
             ))}
           </div>
+          {filteredTeams.length === 0 && (
+            <p className="text-orange-600 text-xs mt-2 font-medium">
+              ⚠️ No teams are currently configured for this portfolio
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Loading State Info */}
+      {isEditMode && selectedPortfolio && teamsLoading && (
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <Loader2 className="h-4 w-4 animate-spin text-yellow-600" />
+            <h5 className="text-yellow-800 font-medium text-sm">Loading Team Information</h5>
+          </div>
+          <p className="text-yellow-700 text-xs mt-1">
+            Fetching available teams for <strong>{selectedPortfolio}</strong>...
+          </p>
         </div>
       )}
 
@@ -460,11 +534,17 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                 Portfolio: {watchedValues.apsPortfolioName || "Not selected"}
               </span>
             </div>
-            <div>
+            <div className="flex items-center">
               <span className="text-green-600 break-words">
                 Team: {watchedValues.apsTeamName || "Not selected"}
-                {watchedValues.apsPortfolioName && !watchedValues.apsTeamName && isEditMode && (
+                {watchedValues.apsPortfolioName && !watchedValues.apsTeamName && isEditMode && !teamsLoading && (
                   <span className="text-orange-600 ml-1">(Please select a team)</span>
+                )}
+                {teamsLoading && (
+                  <span className="text-blue-600 ml-1 flex items-center">
+                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    (Loading...)
+                  </span>
                 )}
               </span>
             </div>
