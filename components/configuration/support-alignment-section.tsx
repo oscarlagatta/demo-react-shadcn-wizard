@@ -1,11 +1,12 @@
 "use client"
 
 import type { UseFormReturn } from "react-hook-form"
-import { Headphones, Info, Mail } from "lucide-react"
+import { Headphones, Info, Mail, Clock, Shield } from "lucide-react"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
 
@@ -41,14 +42,14 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
           Support Alignment
         </h3>
         <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
-          Support team structure, contacts, and service delivery model
+          Support team configuration, contacts, and service level agreements
         </p>
       </div>
 
-      {/* Support Management Section */}
+      {/* APS Support Section */}
       <div className="space-y-4 lg:space-y-6">
         <div className="border-l-4 border-purple-500 pl-3 lg:pl-4">
-          <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">Support Management</h4>
+          <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">APS Support Team</h4>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 gap-4 lg:gap-6">
@@ -59,29 +60,16 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
-                    APS Support Manager{" "}
-                    <InfoTooltip content="Application Production Support Manager responsible for overall support" />
+                    APS Support Contact <InfoTooltip content="Primary APS support contact person" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-purple-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select APS Support Manager" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Powers, Austin">Powers, Austin</SelectItem>
-                      <SelectItem value="Smith, John">Smith, John</SelectItem>
-                      <SelectItem value="Johnson, Sarah">Johnson, Sarah</SelectItem>
-                      <SelectItem value="Chen, Mike">Chen, Mike</SelectItem>
-                      <SelectItem value="Rodriguez, Lisa">Rodriguez, Lisa</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -95,28 +83,16 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
-                    APS Technical Lead <InfoTooltip content="Technical lead for Application Production Support" />
+                    APS Technical Lead <InfoTooltip content="Technical lead for APS support" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-purple-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select APS Technical Lead" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Smith, Belinda">Smith, Belinda</SelectItem>
-                      <SelectItem value="Kim, David">Kim, David</SelectItem>
-                      <SelectItem value="Wilson, Emma">Wilson, Emma</SelectItem>
-                      <SelectItem value="Brown, Alex">Brown, Alex</SelectItem>
-                      <SelectItem value="Garcia, Maria">Garcia, Maria</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      disabled={true}
+                      className={cn("h-9 lg:h-10 xl:h-11", "bg-gray-50")}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -130,7 +106,7 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
-                    L2 Support Group <InfoTooltip content="Level 2 support group identifier and team name" />
+                    L2 Support Group <InfoTooltip content="Level 2 support group identifier" />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -158,43 +134,15 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
           <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">Support Contacts</h4>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="appSupportDg"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center text-sm lg:text-base">
-                    Support Contact Email <InfoTooltip content="Email address for the primary support contact" />
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        type="email"
-                        value={field.value || ""}
-                        disabled={true}
-                        className={cn("pl-9 lg:pl-10 h-9 lg:h-10 xl:h-11", "bg-gray-50")}
-                      />
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 gap-4 lg:gap-6">
+          <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
               name="secondLevelProductionSupportLoginName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
-                    L2 Support Contact{" "}
-                    <InfoTooltip content="Level 2 support contact person for technical escalations" />
+                    L2 Support Contact <InfoTooltip content="Level 2 production support contact" />
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -210,7 +158,38 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 2xl:col-span-2">
+            <FormField
+              control={form.control}
+              name="appSupportDg"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center text-sm lg:text-base">
+                    Support Email <InfoTooltip content="Support distribution group email" />
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        disabled={!isEditMode}
+                        type="email"
+                        className={cn(
+                          "h-9 lg:h-10 xl:h-11 pl-9",
+                          !isEditMode && "bg-gray-50",
+                          isEditMode && "focus:ring-2 focus:ring-purple-500",
+                        )}
+                      />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
               name="regionName"
@@ -220,8 +199,8 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                     Support Region <InfoTooltip content="Geographic region for support coverage" />
                   </FormLabel>
                   <FormControl>
-                    <div className="flex items-center h-9 lg:h-10 xl:h-11">
-                      <span className="text-sm lg:text-base text-gray-700">{field.value}</span>
+                    <div className="flex items-center h-9 lg:h-10 xl:h-11 px-3 py-2 border border-gray-200 rounded-md bg-gray-50">
+                      <span className="text-sm lg:text-base text-gray-700">{field.value || "Not specified"}</span>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -232,15 +211,49 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
         </div>
       </div>
 
-      {/* Service Delivery Model Section */}
+      {/* Support Model Section */}
       <div className="space-y-4 lg:space-y-6">
         <div className="border-l-4 border-green-500 pl-3 lg:pl-4">
-          <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">
-            Service Delivery Model
-          </h4>
+          <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">Support Model</h4>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+          <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="supportModelName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center text-sm lg:text-base">
+                    Support Model <InfoTooltip content="Type of support model for this application" />
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""} disabled={!isEditMode}>
+                    <FormControl>
+                      <SelectTrigger
+                        className={cn(
+                          "h-9 lg:h-10 xl:h-11",
+                          !isEditMode && "bg-gray-50",
+                          isEditMode && "focus:ring-2 focus:ring-purple-500",
+                        )}
+                      >
+                        <SelectValue placeholder="Select support model" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="BPS - 24x7">BPS - 24x7</SelectItem>
+                      <SelectItem value="BPS - 365x5">BPS - 365x5</SelectItem>
+                      <SelectItem value="BPS - Business Hours">BPS - Business Hours</SelectItem>
+                      <SelectItem value="Standard - 24x7">Standard - 24x7</SelectItem>
+                      <SelectItem value="Standard - Business Hours">Standard - Business Hours</SelectItem>
+                      <SelectItem value="On-Demand">On-Demand</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <div className="space-y-2">
             <FormField
               control={form.control}
@@ -248,11 +261,11 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
-                    BPS Supported <InfoTooltip content="Whether Business Process Support is available" />
+                    BPS Supported <InfoTooltip content="Whether the application is supported by BPS" />
                   </FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(value === "true")}
-                    value={field.value?.toString()}
+                    value={field.value?.toString() || "false"}
                     disabled={!isEditMode}
                   >
                     <FormControl>
@@ -280,33 +293,28 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
           <div className="space-y-2">
             <FormField
               control={form.control}
-              name="supportModelName"
+              name="regionName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
-                    Support Model <InfoTooltip content="Type of support model and coverage hours" />
+                    Support Timezone <InfoTooltip content="Primary timezone for support operations" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
-                    <FormControl>
-                      <SelectTrigger
-                        className={cn(
-                          "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-purple-500",
-                        )}
-                      >
-                        <SelectValue placeholder="Select support model" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="BPS - 24x7">BPS - 24x7</SelectItem>
-                      <SelectItem value="BPS - 365x5">BPS - 365x5</SelectItem>
-                      <SelectItem value="BPS - Business Hours">BPS - Business Hours</SelectItem>
-                      <SelectItem value="Standard - 24x7">Standard - 24x7</SelectItem>
-                      <SelectItem value="Standard - Business Hours">Standard - Business Hours</SelectItem>
-                      <SelectItem value="On-Demand">On-Demand</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <div className="flex items-center h-9 lg:h-10 xl:h-11 px-3 py-2 border border-gray-200 rounded-md bg-gray-50">
+                      <Clock className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm lg:text-base text-gray-700">
+                        {field.value === "AMRS"
+                          ? "Americas (EST/PST)"
+                          : field.value === "APAC"
+                            ? "Asia Pacific (JST/SGT)"
+                            : field.value === "EMEA"
+                              ? "Europe/Africa (GMT/CET)"
+                              : field.value === "GLOBAL"
+                                ? "Global (24x7)"
+                                : "Not specified"}
+                      </span>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -315,40 +323,87 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
         </div>
       </div>
 
+      {/* Escalation Path */}
+      <div className="space-y-4 lg:space-y-6">
+        <div className="border-l-4 border-orange-500 pl-3 lg:pl-4">
+          <h4 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">Escalation Path</h4>
+        </div>
+
+        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="flex items-center mb-3">
+            <Shield className="h-5 w-5 text-orange-600 mr-2" />
+            <h5 className="font-medium text-orange-800 text-sm lg:text-base">Standard Escalation Process</h5>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <Badge variant="outline" className="bg-white border-orange-300 text-orange-700">
+              L1 Support
+            </Badge>
+            <span className="text-orange-600">→</span>
+            <Badge variant="outline" className="bg-white border-orange-300 text-orange-700">
+              L2 Support Group
+            </Badge>
+            <span className="text-orange-600">→</span>
+            <Badge variant="outline" className="bg-white border-orange-300 text-orange-700">
+              APS Support Manager
+            </Badge>
+            <span className="text-orange-600">→</span>
+            <Badge variant="outline" className="bg-white border-orange-300 text-orange-700">
+              APS Technical Lead
+            </Badge>
+          </div>
+          <p className="text-xs text-orange-600 mt-2">
+            Escalation follows this path based on severity and complexity of the issue
+          </p>
+        </div>
+      </div>
+
       {/* Support Summary Section */}
       <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-purple-50 border border-purple-200 rounded-lg">
-        <h4 className="text-purple-800 font-semibold mb-3 text-sm lg:text-base">Support Configuration Summary</h4>
+        <h4 className="text-purple-800 font-semibold mb-3 text-sm lg:text-base">Support Summary</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4 text-xs lg:text-sm">
           <div>
             <span className="font-medium text-purple-700">Support Model:</span>{" "}
-            <span className="text-purple-600 break-words">{watchedValues.supportModelName || "Not selected"}</span>
+            <Badge
+              variant={watchedValues.supportModelName?.includes("24x7") ? "default" : "secondary"}
+              className="text-xs ml-1"
+            >
+              {watchedValues.supportModelName || "Not set"}
+            </Badge>
           </div>
           <div>
             <span className="font-medium text-purple-700">BPS Supported:</span>{" "}
-            <span className="text-purple-600">{watchedValues.bpssupported ? "Yes" : "No"}</span>
+            <Badge variant={watchedValues.bpssupported ? "default" : "secondary"} className="text-xs ml-1">
+              {watchedValues.bpssupported ? "Yes" : "No"}
+            </Badge>
           </div>
           <div>
             <span className="font-medium text-purple-700">Support Region:</span>{" "}
-            <span className="text-purple-600">{watchedValues.regionName || "Not selected"}</span>
+            <span className="text-purple-600">{watchedValues.regionName || "Not specified"}</span>
           </div>
           <div>
-            <span className="font-medium text-purple-700">L2 Support Group:</span>{" "}
-            <span className="text-purple-600 break-words">{watchedValues.l2SupportGroup || "Not assigned"}</span>
+            <span className="font-medium text-purple-700">L2 Group:</span>{" "}
+            <span className="text-purple-600 break-words text-xs">
+              {watchedValues.l2SupportGroup
+                ? watchedValues.l2SupportGroup.length > 20
+                  ? `${watchedValues.l2SupportGroup.substring(0, 20)}...`
+                  : watchedValues.l2SupportGroup
+                : "Not assigned"}
+            </span>
           </div>
         </div>
 
-        {/* Support Contacts Summary */}
+        {/* Contact Summary */}
         <div className="mt-4 pt-4 border-t border-purple-200">
-          <h5 className="font-medium text-purple-700 mb-2 text-xs lg:text-sm">Support Team</h5>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-2 text-xs lg:text-sm">
+          <h5 className="font-medium text-purple-700 mb-2 text-xs lg:text-sm">Support Contacts</h5>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2 text-xs lg:text-sm">
             <div>
               <span className="text-purple-600 break-words">
-                APS Manager: {watchedValues.apsSupportContact || "Not assigned"}
+                APS Support: {watchedValues.apsSupportContact || "Not assigned"}
               </span>
             </div>
             <div>
               <span className="text-purple-600 break-words">
-                Technical Lead: {watchedValues.apsTechnicalLeadName || "Not assigned"}
+                Tech Lead: {watchedValues.apsTechnicalLeadName || "Not assigned"}
               </span>
             </div>
             <div>
@@ -356,13 +411,19 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                 L2 Contact: {watchedValues.secondLevelProductionSupportLoginName || "Not assigned"}
               </span>
             </div>
-            <div>
-              <span className="text-purple-600 break-words">
-                Support Email: {watchedValues.appSupportDg || "Not assigned"}
-              </span>
-            </div>
           </div>
         </div>
+
+        {/* Support Email */}
+        {watchedValues.appSupportDg && (
+          <div className="mt-4 pt-4 border-t border-purple-200">
+            <h5 className="font-medium text-purple-700 mb-2 text-xs lg:text-sm">Support Email</h5>
+            <div className="flex items-center">
+              <Mail className="h-4 w-4 text-purple-600 mr-2" />
+              <span className="text-purple-600 break-all text-xs lg:text-sm">{watchedValues.appSupportDg}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

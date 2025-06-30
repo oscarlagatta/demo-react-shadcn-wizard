@@ -142,6 +142,35 @@ export const useSaveConfiguration = () => {
   })
 }
 
+// Portfolio-Team mapping for dynamic filtering
+export const portfolioTeamMapping: Record<string, string[]> = {
+  "Global Payments": ["Name Services", "Platform Engineering", "Application Development"],
+  "APAC Portfolio": ["Data Engineering", "Infrastructure", "Security"],
+  "EMEA Portfolio": ["DevOps", "Platform Engineering", "Security"],
+  "Americas Portfolio": ["Application Development", "Infrastructure", "DevOps"],
+}
+
+// Hook to get teams filtered by portfolio
+export const useTeamsByPortfolio = (portfolioName?: string | null) => {
+  return useQuery({
+    queryKey: ["teams-by-portfolio", portfolioName],
+    queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 200)) // Simulate API delay
+
+      if (!portfolioName || !portfolioTeamMapping[portfolioName]) {
+        return []
+      }
+
+      return portfolioTeamMapping[portfolioName].map((team) => ({
+        value: team,
+        label: team,
+      }))
+    },
+    enabled: !!portfolioName,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
 // Keep existing hooks for dropdown options
 export const useRegions = () => {
   return useQuery({

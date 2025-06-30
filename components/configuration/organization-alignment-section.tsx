@@ -1,13 +1,15 @@
 "use client"
 
+import { useEffect } from "react"
 import type { UseFormReturn } from "react-hook-form"
-import { Users, Info } from "lucide-react"
+import { Users, Info, Loader2 } from "lucide-react"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
+import { useTeamsByPortfolio, portfolioTeamMapping } from "@/lib/hooks/use-configuration-data"
 
 interface OrganizationAlignmentSectionProps {
   form: UseFormReturn<FullConfigurationForm>
@@ -29,6 +31,21 @@ const InfoTooltip = ({ content }: { content: string }) => (
 
 export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationAlignmentSectionProps) {
   const watchedValues = form.watch()
+  const selectedPortfolio = form.watch("apsPortfolioName")
+  const selectedTeam = form.watch("apsTeamName")
+
+  // Get filtered teams based on selected portfolio
+  const { data: filteredTeams = [], isLoading: teamsLoading } = useTeamsByPortfolio(selectedPortfolio)
+
+  // Handle portfolio change - reset team if it's not available in the new portfolio
+  useEffect(() => {
+    if (isEditMode && selectedPortfolio && selectedTeam) {
+      const availableTeams = portfolioTeamMapping[selectedPortfolio] || []
+      if (!availableTeams.includes(selectedTeam)) {
+        form.setValue("apsTeamName", "", { shouldDirty: true })
+      }
+    }
+  }, [selectedPortfolio, selectedTeam, isEditMode, form])
 
   return (
     <div className="space-y-6 lg:space-y-8 xl:space-y-10">
@@ -141,7 +158,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Portfolio <InfoTooltip content="Portfolio this application belongs to" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                  <Select onValueChange={field.onChange} value={field.value || ""} disabled={!isEditMode}>
                     <FormControl>
                       <SelectTrigger
                         className={cn(
@@ -198,29 +215,51 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Team <InfoTooltip content="Team responsible for the application" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || ""}
+                    disabled={!isEditMode || !selectedPortfolio}
+                  >
                     <FormControl>
                       <SelectTrigger
                         className={cn(
                           "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
+                          (!isEditMode || !selectedPortfolio) && "bg-gray-50",
+                          isEditMode && selectedPortfolio && "focus:ring-2 focus:ring-green-500",
                         )}
                       >
-                        <SelectValue placeholder="Select team" />
+                        <SelectValue
+                          placeholder={
+                            !selectedPortfolio
+                              ? "Select portfolio first"
+                              : teamsLoading
+                                ? "Loading teams..."
+                                : filteredTeams.length === 0
+                                  ? "No teams available"
+                                  : "Select team"
+                          }
+                        />
+                        {teamsLoading && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Name Services">Name Services</SelectItem>
-                      <SelectItem value="Platform Engineering">Platform Engineering</SelectItem>
-                      <SelectItem value="Application Development">Application Development</SelectItem>
-                      <SelectItem value="Data Engineering">Data Engineering</SelectItem>
-                      <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-                      <SelectItem value="Security">Security</SelectItem>
-                      <SelectItem value="DevOps">DevOps</SelectItem>
+                      {filteredTeams.length === 0 && selectedPortfolio && !teamsLoading ? (
+                        <div className="px-2 py-1.5 text-sm text-gray-500">No teams available for this portfolio</div>
+                      ) : (
+                        filteredTeams.map((team) => (
+                          <SelectItem key={team.value} value={team.value}>
+                            {team.label}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                  {isEditMode && selectedPortfolio && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Showing teams for {selectedPortfolio} ({filteredTeams.length} available)
+                    </p>
+                  )}
                 </FormItem>
               )}
             />
@@ -244,7 +283,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Organization <InfoTooltip content="Primary organizational unit or division" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                  <Select onValueChange={field.onChange} value={field.value || ""} disabled={!isEditMode}>
                     <FormControl>
                       <SelectTrigger
                         className={cn(
@@ -333,8 +372,10 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Aligning Org <InfoTooltip content="Technology organization alignment" />
                   </FormLabel>
                   <FormControl>
-                    <div className="flex items-center h-9 lg:h-10 xl:h-11">
-                      <span className="text-sm lg:text-base text-gray-700 break-words">{field.value}</span>
+                    <div className="flex items-center h-9 lg:h-10 xl:h-11 px-3 py-2 border border-gray-200 rounded-md bg-gray-50">
+                      <span className="text-sm lg:text-base text-gray-700 break-words">
+                        {field.value || "Not specified"}
+                      </span>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -344,6 +385,29 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           </div>
         </div>
       </div>
+
+      {/* Portfolio-Team Relationship Info */}
+      {isEditMode && selectedPortfolio && (
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <h5 className="text-blue-800 font-medium mb-2 text-sm">Portfolio Team Information</h5>
+          <p className="text-blue-700 text-xs mb-2">
+            <strong>{selectedPortfolio}</strong> has the following teams available:
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {(portfolioTeamMapping[selectedPortfolio] || []).map((team) => (
+              <span
+                key={team}
+                className={cn(
+                  "px-2 py-1 text-xs rounded-full",
+                  selectedTeam === team ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-700",
+                )}
+              >
+                {team}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Organizational Summary Section */}
       <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-green-50 border border-green-200 rounded-lg">
@@ -382,6 +446,26 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
             <div>
               <span className="text-green-600 break-words">
                 App Manager: {watchedValues.applicationManager || "Not assigned"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Team Summary */}
+        <div className="mt-4 pt-4 border-t border-green-200">
+          <h5 className="font-medium text-green-700 mb-2 text-xs lg:text-sm">Team Structure</h5>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs lg:text-sm">
+            <div>
+              <span className="text-green-600 break-words">
+                Portfolio: {watchedValues.apsPortfolioName || "Not selected"}
+              </span>
+            </div>
+            <div>
+              <span className="text-green-600 break-words">
+                Team: {watchedValues.apsTeamName || "Not selected"}
+                {watchedValues.apsPortfolioName && !watchedValues.apsTeamName && isEditMode && (
+                  <span className="text-orange-600 ml-1">(Please select a team)</span>
+                )}
               </span>
             </div>
           </div>
