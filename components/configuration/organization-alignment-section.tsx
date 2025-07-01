@@ -47,14 +47,14 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   const { data: portfolios = [], isLoading: portfoliosLoading } = usePortfolios()
 
   // Get team data based on selected portfolio
-  const selectedPortfolioId = watchedValues.apsPortfolioIdName ? Number(watchedValues.apsPortfolioIdName) : undefined
+  const selectedPortfolioId = watchedValues.apsPortfolioId ? Number(watchedValues.apsPortfolioId) : undefined
   const { data: teamData = [], isLoading: teamLoading } = useGetAPSTeamByPortfolioId(selectedPortfolioId || 0)
 
   // Memoize current portfolio and team to avoid recalculation on every render
   const currentPortfolio = useMemo(() => {
-    if (!watchedValues.apsPortfolioIdName || !portfolios.length) return null
-    return (portfolios as Portfolio[]).find((p) => p.id === watchedValues.apsPortfolioIdName) || null
-  }, [watchedValues.apsPortfolioIdName, portfolios])
+    if (!watchedValues.apsPortfolioId || !portfolios.length) return null
+    return (portfolios as Portfolio[]).find((p) => p.id === watchedValues.apsPortfolioId) || null
+  }, [watchedValues.apsPortfolioId, portfolios])
 
   const currentTeam = useMemo(() => {
     if (!watchedValues.apsTeamName || !teamData.length) return null
@@ -64,7 +64,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   // Debug logging to understand the state
   useEffect(() => {
     console.log("Debug - Organization Alignment Section:", {
-      portfolioIdFromForm: watchedValues.apsPortfolioIdName,
+      portfolioIdFromForm: watchedValues.apsPortfolioId,
       teamNameFromForm: watchedValues.apsTeamName,
       portfoliosData: portfolios,
       teamData: teamData,
@@ -73,7 +73,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
       selectedPortfolioId: selectedPortfolioId,
     })
   }, [
-    watchedValues.apsPortfolioIdName,
+    watchedValues.apsPortfolioId,
     watchedValues.apsTeamName,
     portfolios,
     teamData,
@@ -98,7 +98,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   // Handle portfolio change - clear team when portfolio changes
   const handlePortfolioChange = (portfolioId: string) => {
     console.log("Portfolio changed to:", portfolioId)
-    form.setValue("apsPortfolioIdName", portfolioId)
+    form.setValue("apsPortfolioId", portfolioId)
     // Clear team field when portfolio changes to force user to select new team
     form.setValue("apsTeamName", "")
   }
