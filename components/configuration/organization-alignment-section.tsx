@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
 import { usePortfolios, useGetAPSTeamByPortfolioId } from "@/lib/hooks/use-configuration-data"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 
 interface OrganizationAlignmentSectionProps {
   form: UseFormReturn<FullConfigurationForm>
@@ -50,27 +50,64 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   const selectedPortfolioId = watchedValues.apsPortfolioIdName ? Number(watchedValues.apsPortfolioIdName) : undefined
   const { data: teamData = [], isLoading: teamLoading } = useGetAPSTeamByPortfolioId(selectedPortfolioId || 0)
 
+  // Memoize current portfolio and team to avoid recalculation on every render
+  const currentPortfolio = useMemo(() => {
+    if (!watchedValues.apsPortfolioIdName || !portfolios.length) return null
+    return (portfolios as Portfolio[]).find((p) => p.id === watchedValues.apsPortfolioIdName) || null
+  }, [watchedValues.apsPortfolioIdName, portfolios])
+
+  const currentTeam = useMemo(() => {
+    if (!watchedValues.apsTeamName || !teamData.length) return null
+    return (teamData as Team[]).find((t) => (t.teamName || t.name) === watchedValues.apsTeamName) || null
+  }, [watchedValues.apsTeamName, teamData])
+
+  // Debug logging to understand the state
+  useEffect(() => {
+    console.log("Debug - Organization Alignment Section:", {
+      portfolioIdFromForm: watchedValues.apsPortfolioIdName,
+      teamNameFromForm: watchedValues.apsTeamName,
+      portfoliosData: portfolios,
+      teamData: teamData,
+      currentPortfolio: currentPortfolio,
+      currentTeam: currentTeam,
+      selectedPortfolioId: selectedPortfolioId,
+    })
+  }, [
+    watchedValues.apsPortfolioIdName,
+    watchedValues.apsTeamName,
+    portfolios,
+    teamData,
+    currentPortfolio,
+    currentTeam,
+    selectedPortfolioId,
+  ])
+
   // Initialize team data when portfolio is loaded and has a value
   useEffect(() => {
     if (selectedPortfolioId && teamData.length > 0 && !watchedValues.apsTeamName) {
       // If there's a portfolio selected but no team, and we have team data, set the first team
       const firstTeam = teamData[0]
       if (firstTeam) {
-        form.setValue("apsTeamName", firstTeam.teamName || firstTeam.name || "")
+        const teamName = firstTeam.teamName || firstTeam.name || ""
+        console.log("Auto-setting team:", teamName)
+        form.setValue("apsTeamName", teamName)
       }
     }
   }, [selectedPortfolioId, teamData, watchedValues.apsTeamName, form])
 
   // Handle portfolio change - clear team when portfolio changes
   const handlePortfolioChange = (portfolioId: string) => {
+    console.log("Portfolio changed to:", portfolioId)
     form.setValue("apsPortfolioIdName", portfolioId)
     // Clear team field when portfolio changes to force user to select new team
     form.setValue("apsTeamName", "")
   }
 
-  // Get current portfolio name for display
-  const currentPortfolio = portfolios.find((p: Portfolio) => p.id === watchedValues.apsPortfolioIdName)
-  const currentTeam = teamData.find((t: Team) => (t.teamName || t.name) === watchedValues.apsTeamName)
+  // Handle team change
+  const handleTeamChange = (teamName: string) => {
+    console.log("Team changed to:", teamName)
+    form.setValue("apsTeamName", teamName)
+  }
 
   return (
     <div className="space-y-6 lg:space-y-8 xl:space-y-10">
@@ -182,7 +219,11 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                         )}
                       >
                         <SelectValue placeholder="Select portfolio">
-                          {currentPortfolio ? currentPortfolio.portfolioname : "Select portfolio"}
+                          {currentPortfolio
+                            ? currentPortfolio.portfolioname
+                            : field.value
+                              ? `Portfolio ID: ${field.value}`
+                              : "Select portfolio"}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
@@ -228,7 +269,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Team <InfoTooltip content="Team responsible for the application" />
                   </FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={handleTeamChange}
                     value={field.value || ""}
                     disabled={!isEditMode || teamLoading || !selectedPortfolioId}
                   >
@@ -243,9 +284,11 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                         <SelectValue placeholder={selectedPortfolioId ? "Select team" : "Select portfolio first"}>
                           {currentTeam
                             ? currentTeam.teamName || currentTeam.name
-                            : selectedPortfolioId
-                              ? "Select team"
-                              : "Select portfolio first"}
+                            : field.value
+                              ? field.value
+                              : selectedPortfolioId
+                                ? "Select team"
+                                : "Select portfolio first"}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
