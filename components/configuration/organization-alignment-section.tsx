@@ -53,7 +53,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   // Memoize current portfolio and team to avoid recalculation on every render
   const currentPortfolio = useMemo(() => {
     if (!watchedValues.apsPortfolioId || !portfolios.length) return null
-    return (portfolios as Portfolio[]).find((p) => p.id === watchedValues.apsPortfolioId) || null
+    return (portfolios as Portfolio[]).find((p) => p.id === String(watchedValues.apsPortfolioId)) || null
   }, [watchedValues.apsPortfolioId, portfolios])
 
   const currentTeam = useMemo(() => {
@@ -104,7 +104,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
     console.log("Portfolio changed to:", portfolioId)
     const selectedPortfolio = portfolios.find((p: Portfolio) => p.id === portfolioId)
 
-    form.setValue("apsPortfolioId", portfolioId)
+    form.setValue("apsPortfolioId", Number(portfolioId))
     form.setValue("apsPortfolioIdName", selectedPortfolio?.portfolioname || "")
     // Clear team field when portfolio changes to force user to select new team
     form.setValue("apsTeamName", "")
@@ -214,7 +214,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                   </FormLabel>
                   <Select
                     onValueChange={handlePortfolioChange}
-                    value={field.value || ""}
+                    value={field.value ? String(field.value) : ""}
                     disabled={!isEditMode || portfoliosLoading}
                   >
                     <FormControl>

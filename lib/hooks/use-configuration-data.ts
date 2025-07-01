@@ -47,7 +47,7 @@ interface Configuration {
   techExec: string
   managementContact: string
   applicationManager: string
-  apsPortfolioId: string
+  apsPortfolioId: number
   apsPortfolioIdName: string
   portfolioLead: string
   apsTeamName: string
@@ -142,7 +142,7 @@ const fetchConfiguration = async (applicationId: string): Promise<Configuration>
     techExec: "Thompson, Sarah K.",
     managementContact: "Chen, Michael R.",
     applicationManager: "Williams, Jennifer L.",
-    apsPortfolioId: "1",
+    apsPortfolioId: 1,
     apsPortfolioIdName: "APAC Portfolio",
     portfolioLead: "Anderson, David M.",
     apsTeamName: "Australia Apps Team",

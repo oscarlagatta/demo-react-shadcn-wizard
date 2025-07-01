@@ -23,7 +23,7 @@ export const organizationAlignmentSchema = z.object({
   techExec: z.string().min(1, "Tech Exec is required"),
   managementContact: z.string().min(1, "Management Contact is required"),
   applicationManager: z.string().min(1, "Application Manager is required"),
-  apsPortfolioId: z.string().min(1, "Portfolio is required"),
+  apsPortfolioId: z.number().min(1, "Portfolio is required"),
   apsPortfolioIdName: z.string().min(1, "Portfolio Name is required"),
   portfolioLead: z.string().min(1, "Portfolio Lead is required"),
   apsTeamName: z.string().min(1, "Team is required"),
