@@ -152,7 +152,15 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                     <InfoTooltip content="Primary support contact person for escalations and coordination" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
+                    <Input
+                      {...field}
+                      disabled={!isEditMode}
+                      className={cn(
+                        "h-9 lg:h-10 xl:h-11",
+                        !isEditMode && "bg-gray-50",
+                        isEditMode && "focus:ring-2 focus:ring-purple-500",
+                      )}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -174,8 +182,12 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                       <Input
                         {...field}
                         type="email"
-                        disabled={true}
-                        className="pl-9 lg:pl-10 h-9 lg:h-10 xl:h-11 bg-gray-50"
+                        disabled={!isEditMode}
+                        className={cn(
+                          "pl-9 lg:pl-10 h-9 lg:h-10 xl:h-11",
+                          !isEditMode && "bg-gray-50",
+                          isEditMode && "focus:ring-2 focus:ring-purple-500",
+                        )}
                       />
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     </div>
@@ -197,7 +209,15 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                     <InfoTooltip content="Level 2 support contact person for technical escalations" />
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
+                    <Input
+                      {...field}
+                      disabled={!isEditMode}
+                      className={cn(
+                        "h-9 lg:h-10 xl:h-11",
+                        !isEditMode && "bg-gray-50",
+                        isEditMode && "focus:ring-2 focus:ring-purple-500",
+                      )}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -214,9 +234,25 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Support Region <InfoTooltip content="Geographic region for support coverage" />
                   </FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                    <FormControl>
+                      <SelectTrigger
+                        className={cn(
+                          "h-9 lg:h-10 xl:h-11",
+                          !isEditMode && "bg-gray-50",
+                          isEditMode && "focus:ring-2 focus:ring-purple-500",
+                        )}
+                      >
+                        <SelectValue placeholder="Select support region" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="apac">APAC</SelectItem>
+                      <SelectItem value="emea">EMEA</SelectItem>
+                      <SelectItem value="americas">Americas</SelectItem>
+                      <SelectItem value="global">Global (24x7)</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -311,9 +347,25 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Support Timezone <InfoTooltip content="Primary timezone for support operations" />
                   </FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={true} className="h-9 lg:h-10 xl:h-11 bg-gray-50" />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                    <FormControl>
+                      <SelectTrigger
+                        className={cn(
+                          "h-9 lg:h-10 xl:h-11",
+                          !isEditMode && "bg-gray-50",
+                          isEditMode && "focus:ring-2 focus:ring-purple-500",
+                        )}
+                      >
+                        <SelectValue placeholder="Select timezone" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="asia-pacific">Asia Pacific (GMT+8 to GMT+12)</SelectItem>
+                      <SelectItem value="europe-africa">Europe & Africa (GMT+0 to GMT+3)</SelectItem>
+                      <SelectItem value="americas">Americas (GMT-8 to GMT-3)</SelectItem>
+                      <SelectItem value="global">Global (Follow-the-Sun)</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -333,8 +385,12 @@ export function SupportAlignmentSection({ form, isEditMode }: SupportAlignmentSe
                 <FormControl>
                   <Textarea
                     {...field}
-                    disabled={true}
-                    className="min-h-[80px] lg:min-h-[100px] xl:min-h-[120px] text-sm lg:text-base bg-gray-50"
+                    disabled={!isEditMode}
+                    className={cn(
+                      "min-h-[80px] lg:min-h-[100px] xl:min-h-[120px] text-sm lg:text-base",
+                      !isEditMode && "bg-gray-50",
+                      isEditMode && "focus:ring-2 focus:ring-purple-500",
+                    )}
                   />
                 </FormControl>
                 <FormMessage />
