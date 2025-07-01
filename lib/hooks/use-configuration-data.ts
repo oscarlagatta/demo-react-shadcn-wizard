@@ -27,6 +27,16 @@ interface Team {
   name: string
 }
 
+interface Organization {
+  id: number
+  name: string
+}
+
+interface LineOfBusiness {
+  id: number
+  description: string
+}
+
 interface Configuration {
   applicationId: string
   applicationName: string
@@ -51,7 +61,9 @@ interface Configuration {
   apsPortfolioIdName: string
   portfolioLead: string
   apsTeamName: string
+  organisationId: number
   organization: string
+  lineOfBusinessId: number
   lineOfBusiness: string
   aligningOrg: string
   apsSupport: string
@@ -146,8 +158,10 @@ const fetchConfiguration = async (applicationId: string): Promise<Configuration>
     apsPortfolioIdName: "APAC Portfolio",
     portfolioLead: "Anderson, David M.",
     apsTeamName: "Australia Apps Team",
-    organization: "gcib",
-    lineOfBusiness: "treasury-payments",
+    organisationId: 1,
+    organization: "Global Corporate & Investment Banking (GCIB)",
+    lineOfBusinessId: 1,
+    lineOfBusiness: "Treasury & Trade Solutions",
     aligningOrg: "gcib-gts-tech",
     apsSupport: "Kumar, Vipin",
     apsTechnicalLead: "Mengupta, Venkata Kumar",
@@ -213,6 +227,63 @@ const fetchAPSTeamByPortfolioId = async (portfolioId: number): Promise<Team[]> =
   return teamsByPortfolio[portfolioId] || []
 }
 
+// New API functions for organizations and line of business
+const fetchOrganisationForDdl = async (): Promise<Organization[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  return [
+    { id: 1, name: "Global Corporate & Investment Banking (GCIB)" },
+    { id: 2, name: "Global Transaction Services (GTS)" },
+    { id: 3, name: "Consumer & Community Banking (CCB)" },
+    { id: 4, name: "Private Bank & Wealth Management (PBWM)" },
+    { id: 5, name: "Operations & Technology" },
+    { id: 6, name: "Risk Management" },
+    { id: 7, name: "Compliance & Controls" },
+  ]
+}
+
+const fetchLObByOrgId = async (organisationId: number): Promise<LineOfBusiness[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  // Mock data based on organization ID
+  const lobsByOrganization: Record<number, LineOfBusiness[]> = {
+    1: [
+      { id: 1, description: "Treasury & Trade Solutions" },
+      { id: 2, description: "Securities & Fund Services" },
+      { id: 3, description: "Investment Banking" },
+      { id: 4, description: "Markets & Securities" },
+    ],
+    2: [
+      { id: 5, description: "Cash Management" },
+      { id: 6, description: "Trade Finance" },
+      { id: 7, description: "Foreign Exchange" },
+      { id: 8, description: "Commercial Cards" },
+    ],
+    3: [
+      { id: 9, description: "Retail Banking" },
+      { id: 10, description: "Credit Cards" },
+      { id: 11, description: "Private Banking" },
+    ],
+    4: [
+      { id: 12, description: "Private Banking" },
+      { id: 13, description: "Wealth Management" },
+    ],
+    5: [
+      { id: 14, description: "Technology Operations" },
+      { id: 15, description: "Infrastructure" },
+    ],
+    6: [
+      { id: 16, description: "Credit Risk" },
+      { id: 17, description: "Operational Risk" },
+    ],
+    7: [
+      { id: 18, description: "Regulatory Compliance" },
+      { id: 19, description: "Internal Controls" },
+    ],
+  }
+
+  return lobsByOrganization[organisationId] || []
+}
+
 export const useRegions = () => {
   return useQuery({
     queryKey: ["regions"],
@@ -264,7 +335,7 @@ export const useSaveConfiguration = () => {
   })
 }
 
-// New exports for portfolios and teams
+// Existing exports for portfolios and teams
 export const usePortfolios = () => {
   return useQuery({
     queryKey: ["portfolios"],
@@ -278,6 +349,24 @@ export const useGetAPSTeamByPortfolioId = (portfolioId: number) => {
     queryKey: ["aps-teams", portfolioId],
     queryFn: () => fetchAPSTeamByPortfolioId(portfolioId),
     enabled: !!portfolioId && portfolioId > 0,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+// New exports for organizations and line of business
+export const useGetOrganisationGetORganisationForDdl = () => {
+  return useQuery({
+    queryKey: ["organizations"],
+    queryFn: fetchOrganisationForDdl,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useGetLObByOrgId = (organisationId: number) => {
+  return useQuery({
+    queryKey: ["line-of-business", organisationId],
+    queryFn: () => fetchLObByOrgId(organisationId),
+    enabled: !!organisationId && organisationId > 0,
     staleTime: 5 * 60 * 1000,
   })
 }

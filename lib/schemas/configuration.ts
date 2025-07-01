@@ -27,8 +27,10 @@ export const organizationAlignmentSchema = z.object({
   apsPortfolioIdName: z.string().min(1, "Portfolio Name is required"),
   portfolioLead: z.string().min(1, "Portfolio Lead is required"),
   apsTeamName: z.string().min(1, "Team is required"),
-  organization: z.string().min(1, "Organization is required"),
-  lineOfBusiness: z.string().min(1, "Line of Business is required"),
+  organisationId: z.number().min(1, "Organization is required"),
+  organization: z.string().min(1, "Organization name is required"),
+  lineOfBusinessId: z.number().min(1, "Line of Business is required"),
+  lineOfBusiness: z.string().min(1, "Line of Business name is required"),
   aligningOrg: z.string().min(1, "Aligning Org is required"),
 })
 

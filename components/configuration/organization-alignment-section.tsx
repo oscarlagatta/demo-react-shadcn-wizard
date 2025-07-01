@@ -8,7 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { FullConfigurationForm } from "@/lib/schemas/configuration"
-import { usePortfolios, useGetAPSTeamByPortfolioId } from "@/lib/hooks/use-configuration-data"
+import {
+  usePortfolios,
+  useGetAPSTeamByPortfolioId,
+  useGetOrganisationGetORganisationForDdl,
+  useGetLObByOrgId,
+} from "@/lib/hooks/use-configuration-data"
 import { useEffect, useMemo } from "react"
 
 interface OrganizationAlignmentSectionProps {
@@ -25,6 +30,16 @@ interface Team {
   id: string
   teamName: string
   name: string
+}
+
+interface Organization {
+  id: number
+  name: string
+}
+
+interface LineOfBusiness {
+  id: number
+  description: string
 }
 
 const InfoTooltip = ({ content }: { content: string }) => (
@@ -46,11 +61,18 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   // Get portfolio data
   const { data: portfolios = [], isLoading: portfoliosLoading } = usePortfolios()
 
+  // Get organization data
+  const { data: organizations = [], isLoading: organizationsLoading } = useGetOrganisationGetORganisationForDdl()
+
   // Get team data based on selected portfolio
   const selectedPortfolioId = watchedValues.apsPortfolioId ? Number(watchedValues.apsPortfolioId) : undefined
   const { data: teamData = [], isLoading: teamLoading } = useGetAPSTeamByPortfolioId(selectedPortfolioId || 0)
 
-  // Memoize current portfolio and team to avoid recalculation on every render
+  // Get line of business data based on selected organization
+  const selectedOrganisationId = watchedValues.organisationId ? Number(watchedValues.organisationId) : undefined
+  const { data: lineOfBusinessData = [], isLoading: lobLoading } = useGetLObByOrgId(selectedOrganisationId || 0)
+
+  // Memoize current values to avoid recalculation on every render
   const currentPortfolio = useMemo(() => {
     if (!watchedValues.apsPortfolioId || !portfolios.length) return null
     return (portfolios as Portfolio[]).find((p) => p.id === String(watchedValues.apsPortfolioId)) || null
@@ -61,28 +83,56 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
     return (teamData as Team[]).find((t) => (t.teamName || t.name) === watchedValues.apsTeamName) || null
   }, [watchedValues.apsTeamName, teamData])
 
+  const currentOrganization = useMemo(() => {
+    if (!watchedValues.organisationId || !organizations.length) return null
+    return (organizations as Organization[]).find((o) => o.id === watchedValues.organisationId) || null
+  }, [watchedValues.organisationId, organizations])
+
+  const currentLineOfBusiness = useMemo(() => {
+    if (!watchedValues.lineOfBusinessId || !lineOfBusinessData.length) return null
+    return (lineOfBusinessData as LineOfBusiness[]).find((lob) => lob.id === watchedValues.lineOfBusinessId) || null
+  }, [watchedValues.lineOfBusinessId, lineOfBusinessData])
+
   // Debug logging to understand the state
   useEffect(() => {
     console.log("Debug - Organization Alignment Section:", {
       portfolioIdFromForm: watchedValues.apsPortfolioId,
       portfolioNameFromForm: watchedValues.apsPortfolioIdName,
       teamNameFromForm: watchedValues.apsTeamName,
+      organisationIdFromForm: watchedValues.organisationId,
+      organizationNameFromForm: watchedValues.organization,
+      lineOfBusinessIdFromForm: watchedValues.lineOfBusinessId,
+      lineOfBusinessNameFromForm: watchedValues.lineOfBusiness,
       portfoliosData: portfolios,
+      organizationsData: organizations,
       teamData: teamData,
+      lineOfBusinessData: lineOfBusinessData,
       currentPortfolio: currentPortfolio,
       currentTeam: currentTeam,
+      currentOrganization: currentOrganization,
+      currentLineOfBusiness: currentLineOfBusiness,
       selectedPortfolioId: selectedPortfolioId,
+      selectedOrganisationId: selectedOrganisationId,
       allWatchedValues: watchedValues,
     })
   }, [
     watchedValues.apsPortfolioId,
     watchedValues.apsPortfolioIdName,
     watchedValues.apsTeamName,
+    watchedValues.organisationId,
+    watchedValues.organization,
+    watchedValues.lineOfBusinessId,
+    watchedValues.lineOfBusiness,
     portfolios,
+    organizations,
     teamData,
+    lineOfBusinessData,
     currentPortfolio,
     currentTeam,
+    currentOrganization,
+    currentLineOfBusiness,
     selectedPortfolioId,
+    selectedOrganisationId,
     watchedValues,
   ])
 
@@ -99,6 +149,19 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
     }
   }, [selectedPortfolioId, teamData, watchedValues.apsTeamName, form])
 
+  // Initialize line of business data when organization is loaded and has a value
+  useEffect(() => {
+    if (selectedOrganisationId && lineOfBusinessData.length > 0 && !watchedValues.lineOfBusinessId) {
+      // If there's an organization selected but no line of business, and we have LOB data, set the first one
+      const firstLob = lineOfBusinessData[0]
+      if (firstLob) {
+        console.log("Auto-setting line of business:", firstLob.description)
+        form.setValue("lineOfBusinessId", firstLob.id)
+        form.setValue("lineOfBusiness", firstLob.description)
+      }
+    }
+  }, [selectedOrganisationId, lineOfBusinessData, watchedValues.lineOfBusinessId, form])
+
   // Handle portfolio change - update both ID and name fields
   const handlePortfolioChange = (portfolioId: string) => {
     console.log("Portfolio changed to:", portfolioId)
@@ -114,6 +177,27 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   const handleTeamChange = (teamName: string) => {
     console.log("Team changed to:", teamName)
     form.setValue("apsTeamName", teamName)
+  }
+
+  // Handle organization change - update both ID and name fields
+  const handleOrganizationChange = (organizationId: string) => {
+    console.log("Organization changed to:", organizationId)
+    const selectedOrganization = organizations.find((o: Organization) => o.id === Number(organizationId))
+
+    form.setValue("organisationId", Number(organizationId))
+    form.setValue("organization", selectedOrganization?.name || "")
+    // Clear line of business field when organization changes
+    form.setValue("lineOfBusinessId", 0)
+    form.setValue("lineOfBusiness", "")
+  }
+
+  // Handle line of business change - update both ID and name fields
+  const handleLineOfBusinessChange = (lobId: string) => {
+    console.log("Line of Business changed to:", lobId)
+    const selectedLob = lineOfBusinessData.find((lob: LineOfBusiness) => lob.id === Number(lobId))
+
+    form.setValue("lineOfBusinessId", Number(lobId))
+    form.setValue("lineOfBusiness", selectedLob?.description || "")
   }
 
   return (
@@ -327,13 +411,17 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="organization"
+              name="organisationId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Organization <InfoTooltip content="Primary organizational unit or division" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                  <Select
+                    onValueChange={handleOrganizationChange}
+                    value={field.value ? String(field.value) : ""}
+                    disabled={!isEditMode || organizationsLoading}
+                  >
                     <FormControl>
                       <SelectTrigger
                         className={cn(
@@ -342,17 +430,23 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                           isEditMode && "focus:ring-2 focus:ring-green-500",
                         )}
                       >
-                        <SelectValue placeholder="Select organization" />
+                        <SelectValue placeholder="Select organization">
+                          {currentOrganization
+                            ? currentOrganization.name
+                            : watchedValues.organization
+                              ? watchedValues.organization
+                              : field.value
+                                ? `Organization ID: ${field.value}`
+                                : "Select organization"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="gcib">Global Corporate & Investment Banking (GCIB)</SelectItem>
-                      <SelectItem value="gts">Global Transaction Services (GTS)</SelectItem>
-                      <SelectItem value="ccb">Consumer & Community Banking (CCB)</SelectItem>
-                      <SelectItem value="pbwm">Private Bank & Wealth Management (PBWM)</SelectItem>
-                      <SelectItem value="operations">Operations & Technology</SelectItem>
-                      <SelectItem value="risk">Risk Management</SelectItem>
-                      <SelectItem value="compliance">Compliance & Controls</SelectItem>
+                      {(organizations as Organization[]).map((organization) => (
+                        <SelectItem key={organization.id} value={String(organization.id)}>
+                          {organization.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -364,37 +458,46 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="lineOfBusiness"
+              name="lineOfBusinessId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
                     Line of Business <InfoTooltip content="Specific business line or function" />
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={!isEditMode}>
+                  <Select
+                    onValueChange={handleLineOfBusinessChange}
+                    value={field.value ? String(field.value) : ""}
+                    disabled={!isEditMode || lobLoading || !selectedOrganisationId}
+                  >
                     <FormControl>
                       <SelectTrigger
                         className={cn(
                           "h-9 lg:h-10 xl:h-11",
-                          !isEditMode && "bg-gray-50",
-                          isEditMode && "focus:ring-2 focus:ring-green-500",
+                          (!isEditMode || !selectedOrganisationId) && "bg-gray-50",
+                          isEditMode && selectedOrganisationId && "focus:ring-2 focus:ring-green-500",
                         )}
                       >
-                        <SelectValue placeholder="Select line of business" />
+                        <SelectValue
+                          placeholder={selectedOrganisationId ? "Select line of business" : "Select organization first"}
+                        >
+                          {currentLineOfBusiness
+                            ? currentLineOfBusiness.description
+                            : watchedValues.lineOfBusiness
+                              ? watchedValues.lineOfBusiness
+                              : field.value
+                                ? `LOB ID: ${field.value}`
+                                : selectedOrganisationId
+                                  ? "Select line of business"
+                                  : "Select organization first"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="treasury-payments">Treasury & Trade Solutions</SelectItem>
-                      <SelectItem value="securities-services">Securities & Fund Services</SelectItem>
-                      <SelectItem value="commercial-cards">Commercial Cards</SelectItem>
-                      <SelectItem value="cash-management">Cash Management</SelectItem>
-                      <SelectItem value="trade-finance">Trade Finance</SelectItem>
-                      <SelectItem value="foreign-exchange">Foreign Exchange</SelectItem>
-                      <SelectItem value="lending-services">Lending Services</SelectItem>
-                      <SelectItem value="investment-banking">Investment Banking</SelectItem>
-                      <SelectItem value="markets">Markets & Securities</SelectItem>
-                      <SelectItem value="private-banking">Private Banking</SelectItem>
-                      <SelectItem value="retail-banking">Retail Banking</SelectItem>
-                      <SelectItem value="credit-cards">Credit Cards</SelectItem>
+                      {(lineOfBusinessData as LineOfBusiness[]).map((lob) => (
+                        <SelectItem key={lob.id} value={String(lob.id)}>
+                          {lob.description}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -450,23 +553,21 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div>
             <span className="font-medium text-green-700">Primary Organization:</span>{" "}
             <span className="text-green-600 break-words">
-              {watchedValues.organization
-                ? watchedValues.organization
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : "Not selected"}
+              {currentOrganization
+                ? currentOrganization.name
+                : watchedValues.organization
+                  ? watchedValues.organization
+                  : "Not selected"}
             </span>
           </div>
           <div>
             <span className="font-medium text-green-700">Line of Business:</span>{" "}
             <span className="text-green-600 break-words">
-              {watchedValues.lineOfBusiness
-                ? watchedValues.lineOfBusiness
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : "Not selected"}
+              {currentLineOfBusiness
+                ? currentLineOfBusiness.description
+                : watchedValues.lineOfBusiness
+                  ? watchedValues.lineOfBusiness
+                  : "Not selected"}
             </span>
           </div>
           <div>
