@@ -67,9 +67,9 @@ const fetchConfiguration = async (applicationId: string) => {
     techExec: "Thompson, Sarah K.",
     managementContact: "Chen, Michael R.",
     applicationManager: "Williams, Jennifer L.",
-    portfolio: "apac",
+    apsPortfolioIdName: "1",
     portfolioLead: "Anderson, David M.",
-    team: "Australia Apps",
+    apsTeamName: "Australia Apps Team",
     organization: "gcib",
     lineOfBusiness: "treasury-payments",
     aligningOrg: "gcib-gts-tech",
@@ -98,6 +98,43 @@ const fetchConfiguration = async (applicationId: string) => {
 const saveConfiguration = async (data: any) => {
   await new Promise((resolve) => setTimeout(resolve, 2000))
   return { success: true, message: "Configuration saved successfully" }
+}
+
+// New API functions for portfolios and teams
+const fetchPortfolios = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  return [
+    { id: "1", portfolioname: "APAC Portfolio" },
+    { id: "2", portfolioname: "EMEA Portfolio" },
+    { id: "3", portfolioname: "Americas Portfolio" },
+    { id: "4", portfolioname: "Global Portfolio" },
+  ]
+}
+
+const fetchAPSTeamByPortfolioId = async (portfolioId: number) => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  // Mock data based on portfolio ID
+  const teamsByPortfolio: Record<number, any[]> = {
+    1: [
+      { id: "1", teamName: "Australia Apps Team", name: "Australia Apps Team" },
+      { id: "2", teamName: "Singapore Tech Team", name: "Singapore Tech Team" },
+    ],
+    2: [
+      { id: "3", teamName: "London Development Team", name: "London Development Team" },
+      { id: "4", teamName: "Frankfurt Operations Team", name: "Frankfurt Operations Team" },
+    ],
+    3: [
+      { id: "5", teamName: "New York Platform Team", name: "New York Platform Team" },
+      { id: "6", teamName: "Toronto Infrastructure Team", name: "Toronto Infrastructure Team" },
+    ],
+    4: [
+      { id: "7", teamName: "Global Architecture Team", name: "Global Architecture Team" },
+      { id: "8", teamName: "Global Security Team", name: "Global Security Team" },
+    ],
+  }
+
+  return teamsByPortfolio[portfolioId] || []
 }
 
 export const useRegions = () => {
@@ -148,5 +185,23 @@ export const useSaveConfiguration = () => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["configuration"] })
     },
+  })
+}
+
+// New exports for portfolios and teams
+export const usePortfolios = () => {
+  return useQuery({
+    queryKey: ["portfolios"],
+    queryFn: fetchPortfolios,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useGetAPSTeamByPortfolioId = (portfolioId: number) => {
+  return useQuery({
+    queryKey: ["aps-teams", portfolioId],
+    queryFn: () => fetchAPSTeamByPortfolioId(portfolioId),
+    enabled: !!portfolioId && portfolioId > 0,
+    staleTime: 5 * 60 * 1000,
   })
 }
