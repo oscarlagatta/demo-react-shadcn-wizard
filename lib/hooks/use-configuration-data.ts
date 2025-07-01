@@ -1,7 +1,81 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 
+// Type definitions
+interface Region {
+  value: string
+  label: string
+}
+
+interface RtoRpoOption {
+  value: string
+  label: string
+}
+
+interface Approver {
+  value: string
+  label: string
+}
+
+interface Portfolio {
+  id: string
+  portfolioname: string
+}
+
+interface Team {
+  id: string
+  teamName: string
+  name: string
+}
+
+interface Configuration {
+  applicationId: string
+  applicationName: string
+  shortName: string
+  region: string[]
+  twoDot: string
+  twoDotDesc: string
+  threeDot: string
+  threeDotDesc: string
+  description: string
+  rto: string
+  rpo: string
+  rtoApprover: string
+  rtoApproveDate: string
+  usesMainframe: "yes" | "no"
+  applicationHosting: "in-house" | "cloud" | "hybrid"
+  status: string
+  techExec: string
+  managementContact: string
+  applicationManager: string
+  apsPortfolioIdName: string
+  portfolioLead: string
+  apsTeamName: string
+  organization: string
+  lineOfBusiness: string
+  aligningOrg: string
+  apsSupport: string
+  apsTechnicalLead: string
+  l2SupportGroup: string
+  l2SupportContact: string
+  supportContact: string
+  supportContactEmail: string
+  bpsSupported: "yes" | "no"
+  supportModel: string
+  escalationPath: string
+  supportRegion: string
+  supportTimezone: string
+  updatedBy: string
+  updatedDate: string
+  lastAttestedDate: string
+  attestedBy: string
+  nextDueAttestedDate: string
+  createdBy: string
+  createdDate: string
+  version: string
+}
+
 // Mock API functions - replace with actual API calls
-const fetchRegions = async () => {
+const fetchRegions = async (): Promise<Region[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
     { value: "apac-latam", label: "APAC, LATAM" },
@@ -11,7 +85,7 @@ const fetchRegions = async () => {
   ]
 }
 
-const fetchRtoOptions = async () => {
+const fetchRtoOptions = async (): Promise<RtoRpoOption[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
     { value: "tier-1-immediate", label: "Tier 1: Immediate (0-15 minutes)" },
@@ -22,7 +96,7 @@ const fetchRtoOptions = async () => {
   ]
 }
 
-const fetchRpoOptions = async () => {
+const fetchRpoOptions = async (): Promise<RtoRpoOption[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
     { value: "tier-1-no-loss", label: "Tier 1: No data loss (Real-time replication)" },
@@ -33,7 +107,7 @@ const fetchRpoOptions = async () => {
   ]
 }
 
-const fetchRtoRpoApprovers = async () => {
+const fetchRtoRpoApprovers = async (): Promise<Approver[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
     { value: "rodriguez-maria", label: "Rodriguez, Maria C." },
@@ -44,7 +118,7 @@ const fetchRtoRpoApprovers = async () => {
   ]
 }
 
-const fetchConfiguration = async (applicationId: string) => {
+const fetchConfiguration = async (applicationId: string): Promise<Configuration> => {
   await new Promise((resolve) => setTimeout(resolve, 1000))
   return {
     applicationId: "100",
@@ -101,7 +175,7 @@ const saveConfiguration = async (data: any) => {
 }
 
 // New API functions for portfolios and teams
-const fetchPortfolios = async () => {
+const fetchPortfolios = async (): Promise<Portfolio[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500))
   return [
     { id: "1", portfolioname: "APAC Portfolio" },
@@ -111,11 +185,11 @@ const fetchPortfolios = async () => {
   ]
 }
 
-const fetchAPSTeamByPortfolioId = async (portfolioId: number) => {
+const fetchAPSTeamByPortfolioId = async (portfolioId: number): Promise<Team[]> => {
   await new Promise((resolve) => setTimeout(resolve, 500))
 
   // Mock data based on portfolio ID
-  const teamsByPortfolio: Record<number, any[]> = {
+  const teamsByPortfolio: Record<number, Team[]> = {
     1: [
       { id: "1", teamName: "Australia Apps Team", name: "Australia Apps Team" },
       { id: "2", teamName: "Singapore Tech Team", name: "Singapore Tech Team" },

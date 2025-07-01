@@ -16,6 +16,17 @@ interface OrganizationAlignmentSectionProps {
   isEditMode: boolean
 }
 
+interface Portfolio {
+  id: string
+  portfolioname: string
+}
+
+interface Team {
+  id: string
+  teamName: string
+  name: string
+}
+
 const InfoTooltip = ({ content }: { content: string }) => (
   <TooltipProvider>
     <Tooltip>
@@ -171,7 +182,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {portfolios.map((portfolio: { id: string; portfolioname: string }) => (
+                      {(portfolios as Portfolio[]).map((portfolio) => (
                         <SelectItem key={portfolio.id} value={portfolio.id}>
                           {portfolio.portfolioname}
                         </SelectItem>
@@ -228,9 +239,9 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {teamData.map((team: any, index: number) => (
-                        <SelectItem key={team.id || index} value={team.teamName || team.name || `team-${index}`}>
-                          {team.teamName || team.name || `Team ${index + 1}`}
+                      {(teamData as Team[]).map((team) => (
+                        <SelectItem key={team.id} value={team.teamName || team.name}>
+                          {team.teamName || team.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -410,7 +421,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
             <span className="font-medium text-green-700">Portfolio:</span>{" "}
             <span className="text-green-600">
               {watchedValues.apsPortfolioIdName
-                ? portfolios.find((p) => p.id === watchedValues.apsPortfolioIdName)?.portfolioname ||
+                ? (portfolios as Portfolio[]).find((p) => p.id === watchedValues.apsPortfolioIdName)?.portfolioname ||
                   watchedValues.apsPortfolioIdName
                 : "Not selected"}
             </span>
