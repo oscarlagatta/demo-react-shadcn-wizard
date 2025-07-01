@@ -47,6 +47,7 @@ interface Configuration {
   techExec: string
   managementContact: string
   applicationManager: string
+  apsPortfolioId: string
   apsPortfolioIdName: string
   portfolioLead: string
   apsTeamName: string
@@ -141,7 +142,8 @@ const fetchConfiguration = async (applicationId: string): Promise<Configuration>
     techExec: "Thompson, Sarah K.",
     managementContact: "Chen, Michael R.",
     applicationManager: "Williams, Jennifer L.",
-    apsPortfolioIdName: "1",
+    apsPortfolioId: "1",
+    apsPortfolioIdName: "APAC Portfolio",
     portfolioLead: "Anderson, David M.",
     apsTeamName: "Australia Apps Team",
     organization: "gcib",

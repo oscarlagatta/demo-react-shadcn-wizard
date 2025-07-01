@@ -65,21 +65,25 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   useEffect(() => {
     console.log("Debug - Organization Alignment Section:", {
       portfolioIdFromForm: watchedValues.apsPortfolioId,
+      portfolioNameFromForm: watchedValues.apsPortfolioIdName,
       teamNameFromForm: watchedValues.apsTeamName,
       portfoliosData: portfolios,
       teamData: teamData,
       currentPortfolio: currentPortfolio,
       currentTeam: currentTeam,
       selectedPortfolioId: selectedPortfolioId,
+      allWatchedValues: watchedValues,
     })
   }, [
     watchedValues.apsPortfolioId,
+    watchedValues.apsPortfolioIdName,
     watchedValues.apsTeamName,
     portfolios,
     teamData,
     currentPortfolio,
     currentTeam,
     selectedPortfolioId,
+    watchedValues,
   ])
 
   // Initialize team data when portfolio is loaded and has a value
@@ -95,10 +99,13 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
     }
   }, [selectedPortfolioId, teamData, watchedValues.apsTeamName, form])
 
-  // Handle portfolio change - clear team when portfolio changes
+  // Handle portfolio change - update both ID and name fields
   const handlePortfolioChange = (portfolioId: string) => {
     console.log("Portfolio changed to:", portfolioId)
+    const selectedPortfolio = portfolios.find((p: Portfolio) => p.id === portfolioId)
+
     form.setValue("apsPortfolioId", portfolioId)
+    form.setValue("apsPortfolioIdName", selectedPortfolio?.portfolioname || "")
     // Clear team field when portfolio changes to force user to select new team
     form.setValue("apsTeamName", "")
   }
@@ -221,9 +228,11 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                         <SelectValue placeholder="Select portfolio">
                           {currentPortfolio
                             ? currentPortfolio.portfolioname
-                            : field.value
-                              ? `Portfolio ID: ${field.value}`
-                              : "Select portfolio"}
+                            : watchedValues.apsPortfolioIdName
+                              ? watchedValues.apsPortfolioIdName
+                              : field.value
+                                ? `Portfolio ID: ${field.value}`
+                                : "Select portfolio"}
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
@@ -473,7 +482,13 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           </div>
           <div>
             <span className="font-medium text-green-700">Portfolio:</span>{" "}
-            <span className="text-green-600">{currentPortfolio ? currentPortfolio.portfolioname : "Not selected"}</span>
+            <span className="text-green-600">
+              {currentPortfolio
+                ? currentPortfolio.portfolioname
+                : watchedValues.apsPortfolioIdName
+                  ? watchedValues.apsPortfolioIdName
+                  : "Not selected"}
+            </span>
           </div>
         </div>
 
