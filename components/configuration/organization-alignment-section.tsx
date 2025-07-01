@@ -50,18 +50,27 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
   const selectedPortfolioId = watchedValues.apsPortfolioIdName ? Number(watchedValues.apsPortfolioIdName) : undefined
   const { data: teamData = [], isLoading: teamLoading } = useGetAPSTeamByPortfolioId(selectedPortfolioId || 0)
 
-  // Update team field when portfolio changes
+  // Initialize team data when portfolio is loaded and has a value
   useEffect(() => {
-    if (selectedPortfolioId && teamData.length > 0 && isEditMode) {
-      // Auto-select the first team if only one option, or clear if multiple options
-      if (teamData.length === 1) {
-        form.setValue("apsTeamName", teamData[0].teamName || teamData[0].name || "")
-      } else {
-        // Clear the team field when portfolio changes to let user select
-        form.setValue("apsTeamName", "")
+    if (selectedPortfolioId && teamData.length > 0 && !watchedValues.apsTeamName) {
+      // If there's a portfolio selected but no team, and we have team data, set the first team
+      const firstTeam = teamData[0]
+      if (firstTeam) {
+        form.setValue("apsTeamName", firstTeam.teamName || firstTeam.name || "")
       }
     }
-  }, [selectedPortfolioId, teamData, form, isEditMode])
+  }, [selectedPortfolioId, teamData, watchedValues.apsTeamName, form])
+
+  // Handle portfolio change - clear team when portfolio changes
+  const handlePortfolioChange = (portfolioId: string) => {
+    form.setValue("apsPortfolioIdName", portfolioId)
+    // Clear team field when portfolio changes to force user to select new team
+    form.setValue("apsTeamName", "")
+  }
+
+  // Get current portfolio name for display
+  const currentPortfolio = portfolios.find((p: Portfolio) => p.id === watchedValues.apsPortfolioIdName)
+  const currentTeam = teamData.find((t: Team) => (t.teamName || t.name) === watchedValues.apsTeamName)
 
   return (
     <div className="space-y-6 lg:space-y-8 xl:space-y-10">
@@ -160,13 +169,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                     Portfolio <InfoTooltip content="Portfolio this application belongs to" />
                   </FormLabel>
                   <Select
-                    onValueChange={(value) => {
-                      field.onChange(value)
-                      // Clear team field when portfolio changes
-                      if (isEditMode) {
-                        form.setValue("apsTeamName", "")
-                      }
-                    }}
+                    onValueChange={handlePortfolioChange}
                     value={field.value || ""}
                     disabled={!isEditMode || portfoliosLoading}
                   >
@@ -178,7 +181,9 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                           isEditMode && "focus:ring-2 focus:ring-green-500",
                         )}
                       >
-                        <SelectValue placeholder="Select portfolio" />
+                        <SelectValue placeholder="Select portfolio">
+                          {currentPortfolio ? currentPortfolio.portfolioname : "Select portfolio"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -235,7 +240,13 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
                           isEditMode && selectedPortfolioId && "focus:ring-2 focus:ring-green-500",
                         )}
                       >
-                        <SelectValue placeholder={selectedPortfolioId ? "Select team" : "Select portfolio first"} />
+                        <SelectValue placeholder={selectedPortfolioId ? "Select team" : "Select portfolio first"}>
+                          {currentTeam
+                            ? currentTeam.teamName || currentTeam.name
+                            : selectedPortfolioId
+                              ? "Select team"
+                              : "Select portfolio first"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -419,12 +430,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           </div>
           <div>
             <span className="font-medium text-green-700">Portfolio:</span>{" "}
-            <span className="text-green-600">
-              {watchedValues.apsPortfolioIdName
-                ? (portfolios as Portfolio[]).find((p) => p.id === watchedValues.apsPortfolioIdName)?.portfolioname ||
-                  watchedValues.apsPortfolioIdName
-                : "Not selected"}
-            </span>
+            <span className="text-green-600">{currentPortfolio ? currentPortfolio.portfolioname : "Not selected"}</span>
           </div>
         </div>
 
