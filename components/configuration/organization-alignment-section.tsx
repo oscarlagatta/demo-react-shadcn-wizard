@@ -199,7 +199,7 @@ export function OrganizationAlignmentSection({ form, isEditMode }: OrganizationA
           <div className="space-y-2 2xl:col-span-2">
             <FormField
               control={form.control}
-              name="apsPortfolioIdName"
+              name="apsPortfolioId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center text-sm lg:text-base">
