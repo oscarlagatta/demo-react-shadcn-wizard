@@ -7,6 +7,7 @@ import ApplicationConfigurationPanel from "./application-configuration-panel"
 import ServiceFunctionAlignment from "./service-function-alignment"
 import AdditionalDetailPage from "./additional-detail"
 import ResourceAlignmentPage from "./resource-alignment"
+import OnboardingPage from "./onboarding"
 
 export default function BankingApplicationPage() {
   const [activeTab, setActiveTab] = useState("application-detail")
@@ -86,10 +87,12 @@ export default function BankingApplicationPage() {
         {activeTab === "service-function" && <ServiceFunctionAlignment />}
         {activeTab === "additional-detail" && <AdditionalDetailPage />}
         {activeTab === "resource-alignment" && <ResourceAlignmentPage />}
+        {activeTab === "onboarding" && <OnboardingPage />}
         {activeTab !== "application-detail" &&
           activeTab !== "service-function" &&
           activeTab !== "additional-detail" &&
-          activeTab !== "resource-alignment" && (
+          activeTab !== "resource-alignment" &&
+          activeTab !== "onboarding" && (
             <div className="max-w-4xl mx-auto px-4 sm:px-6">
               <div className="text-center py-8 lg:py-12">
                 <h3 className="text-base lg:text-lg font-medium text-gray-900 mb-2">
